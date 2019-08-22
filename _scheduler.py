@@ -118,7 +118,7 @@ sched.start()
 import time
 
 t = time.time() + secs
-tl = time.localtime(a)
+tl = time.localtime(t)
 tstring = time.strftime('%Y-%m-%d %H:%M:%S',tl)
 
 #'2019-08-13 13:29:30'
