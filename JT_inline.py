@@ -4,7 +4,7 @@ Created on Thu Aug 22 15:08:55 2019
 
 @author: pc
 """
-import telebot, json
+import telebot, json, re
 
 from datetime import datetime, time
 
@@ -28,6 +28,7 @@ class Trip:
         self.date = '\nДата: '
         self.descr = 'Описание <- '
         self.pic = None
+        self.cond = ''
         self.price = ['\n*Цена:*\n']
         self.event = self.update()
         self.members = {}
@@ -38,15 +39,17 @@ class Trip:
     def update (self):
         price  = ''.join(self.price)
         tail = '\nЗаписывайтесь у нашего бота -> @prjTestBot\nИли по телефону ..................'
-        self.event = f'*{self.title}*\n{self.date}\n{self.descr}\n{price}{tail}'
+        self.event = f'*{self.title}*\n{self.date}\n{self.descr}\n{self.cond}\n{price}{tail}'
        
         return self.event
         
     def upload (self):
         trip = {}
+        trip['id'] = datetime.today().strftime("%Y%m%d%H%M%S")
         trip['title'] = self.title
         trip['date'] = self.date
         trip['descr'] = self.descr
+        trip['cond'] = self.cond
         trip['pic'] = self.pic
         trip['price'] = self.price
         trip['members'] = {}
@@ -102,7 +105,18 @@ def set_descr (m):
     else:
         bot.edit_message_text( trip.update(), chat_id = trip.ch_id , message_id = trip.m_id, reply_markup = new_trip_markup(), parse_mode= "Markdown")
     
-
+def set_cond (m):
+    cond = m.text
+    trip = trip_dict[m.chat.id]
+    trip.cond = cond
+    bot.delete_message(m.chat.id,m.message_id) 
+    bot.delete_message(m.chat.id,m.message_id - 1)  
+    
+    if trip.pic:
+        bot.edit_message_caption(caption= trip.update(), chat_id = trip.ch_id , message_id = trip.m_id, parse_mode="Markdown", reply_markup=new_trip_markup())
+    else:
+        bot.edit_message_text( trip.update(), chat_id = trip.ch_id , message_id = trip.m_id, reply_markup = new_trip_markup(), parse_mode= "Markdown")
+    
 def set_price (m):
     price = m.text
     trip = trip_dict[m.chat.id]
@@ -149,29 +163,36 @@ def new_trip_markup():
     
     markup.add(InlineKeyboardButton('Заголовок',callback_data = 'title'),
                InlineKeyboardButton('Даты',callback_data = 'dates'),
-               InlineKeyboardButton('Описание',callback_data = 'descr'),
+               InlineKeyboardButton('Реклама',callback_data = 'descr'),
                InlineKeyboardButton('фото',callback_data = 'pic'),
+               InlineKeyboardButton('Умови',callback_data = 'cond'),
                InlineKeyboardButton('Цена',callback_data = 'price'))
    
     markup.add(InlineKeyboardButton('Постим?',callback_data = 'post'))
-    
+
     return markup
 
-def get_trips_markup(trips):
+def get_trips_markup(trips, key = None):
     markup = InlineKeyboardMarkup()
     
-    for key in trips:
-        markup.add(InlineKeyboardButton(trips[key]['title'], callback_data = trips[key]['title']))
+    if key:
+        print ('ENTERED')
+        for k in trips:
+            print (type(trips[k]['title']), trips[k]['title'])
+            markup.add(InlineKeyboardButton(trips[k]['title'], callback_data = trips[k]['id']))
+    else:
+        for k in trips:
+            markup.add(InlineKeyboardButton(trips[k], callback_data = trips[k]))
         
     return markup
 
-def get_trip_info_markup(trips):
-    markup = InlineKeyboardMarkup()
-    
-    for key in trips:
-        markup.add(InlineKeyboardButton(trips[key]['title'], callback_data = trips[key]['title']))
-        
-    return markup
+#def get_trip_info_markup(trips):
+#    markup = InlineKeyboardMarkup()
+#    
+#    for key in trips:
+#        markup.add(InlineKeyboardButton(trips[key]['title'], callback_data = trips[key]['title']))
+#        
+#    return markup
 
 '''
     Handlers
@@ -192,31 +213,37 @@ def start_func (m):
         pass
 
 @bot.callback_query_handler(func=lambda call: True)
-def callback_query(call):
-    
+def callback_query(call):   
+   
     ch_id = call.message.chat.id
     msg_id = call.message.message_id
     
-
-#'''
-#    Create new trip routine
-#'''    
     if call.data == "trips":                
         trips = Trip.get_list()
         bot.delete_message(ch_id,msg_id)
-        bot.send_message(ch_id, 'Актуальные поездки: ', reply_markup = get_trips_markup(trips)) 
+        bot.send_message(ch_id, 'Актуальные поездки: ', reply_markup = get_trips_markup(trips, 'title')) 
       
     elif call.data == "add":   
         bot.delete_message(ch_id,msg_id)
         trip = Trip (ch_id) 
         trip_dict[ch_id] = trip
         bot.send_message(ch_id, trip.event, reply_markup = new_trip_markup())      
-    
+
+
+    elif re.match('\*.+\*', call.data): #re.fullmatch('\*.+\*', call.data): 
+        trips = Trip.get_list()
+        for n in trips:
+            if call.data in trips[n]['id']:
+                trip_dict[ch_id] = trips[n]
+            
+        
+#        bot.delete_message(ch_id,msg_id)
+        msg = f'*{[title]}*\n{self.date}\n{self.descr}\n{self.cond}\n{price}{tail}'
+        bot.send_message(ch_id, 'Что ты хочешь знать по этой поездке', reply_markup = get_trips_markup(trip)) 
+        
     else:
         trip = trip_dict[ch_id]    
         trip.m_id = msg_id 
-#    bot.delete_message(ch_id,msg_id)
-    
     
     if call.data == "title":  
                      
@@ -237,7 +264,12 @@ def callback_query(call):
 #        trip = trip_dict[ch_id]               
         msg = bot.send_message(ch_id, "New picture:")
         bot.register_next_step_handler(msg, set_pic)
-    
+        
+    if call.data == "cond":     
+#        trip = trip_dict[ch_id]               
+        msg = bot.send_message(ch_id, "Условия поездки:")
+        bot.register_next_step_handler(msg, set_cond)
+        
     if call.data == "price":     
 #        trip = trip_dict[ch_id]               
         msg = bot.send_message(ch_id, "Price:")
@@ -256,7 +288,13 @@ def callback_query(call):
         trip.upload()
         
         bot.send_message(ch_id, "ADMIN buttons", reply_markup = start_markup())
+        
+   
 #--------------------------------------------------------------------------------------  
+
+@bot.message_handler(func=lambda message: True)
+def message_handler(message):
+    bot.reply_to(message, "still working")
     
         
 bot.polling()

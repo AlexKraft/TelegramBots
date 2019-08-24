@@ -16,7 +16,7 @@ bot = telebot.TeleBot(API_TOKEN)
 user_dict = {}
 trip_dict = {}
 
-channel_id = -1001205642456
+channel_id = '@prj360Test' #-1001205642456 
 
 f = DB('DB.json')
 
@@ -27,8 +27,9 @@ def gen_markup(text, answ = None, link=None):
     return markup
 
 class User:
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, ch_id):
+        self.chat = ch_id
+        self.name = None
         self.phone = None
         self.tg = False
         
@@ -106,33 +107,45 @@ def set_price (m):
     bot.register_next_step_handler(msg, set_pic) 
 
 def set_pic (m):
-    pic = m.photo[0].file_id
+    
     trip = trip_dict[m.chat.id]
-    trip.pic = pic
-    
-#    trip_dict[trip.title] = trip
-#    del trip_dict[m.chat.id]
-    
     msg =  trip.get_all()
-    keyboard = gen_markup("Постим?", "send")
-    bot.send_photo(m.chat.id, pic , caption= msg, reply_markup = keyboard)
+    
+    
+    if (m.photo):
+        pic = m.photo[0].file_id
+        trip.pic = pic
+        keyboard = gen_markup("Постим?", "photo")
+        bot.send_photo(m.chat.id, pic , caption= msg, reply_markup = keyboard)
+        
+    else :
+        keyboard = gen_markup("Постим?", "msg")
+        bot.send_message(m.chat.id, msg, reply_markup = keyboard)
 
 
-@bot.message_handler(commands=['trips'])
+@bot.message_handler(commands=['test'])
 def get_tris (m):
-    trip = Trip('smth')
-    msg =  trip.get_all()
-    bot.send_message(m.chat.id, msg)
-   
+#    trip = Trip('smth')
+    msg = bot.send_message(m.chat.id,  'Tell me smth') 
+    bot.register_next_step_handler(msg, del_msg) 
+    
+def del_msg(m):
+    print (m)
+    bot.delete_message(m.chat.id,m.message_id)
+    bot.send_message(m.chat.id, "I deleted your message")
+  
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
     
     ch_id = call.message.chat.id
+    trip = trip_dict[ch_id]
     
-    if call.data == "send":   
-        trip = trip_dict[ch_id]
-        bot.send_photo('@prj360Test', trip.pic , caption= trip.event)
-    
+    if call.data == "photo":   
+        
+        bot.send_photo(channel_id, trip.pic , caption= trip.event)
+        
+    if call.data == "msg":
+        bot.send_message(channel_id, trip.event)
     
 #
 #@bot.message_handler(commands=['help', 'start'])

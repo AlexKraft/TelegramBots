@@ -50,3 +50,28 @@ class DB(object):
         del self.db[key]
         self.dumpdb()
         return True
+    
+    
+
+class Bomb:
+    def __init__(self, name):
+        self.name = name
+        self.type = "Trip"
+        self.price = 100
+        
+    def update(self,name = None, type = None, price = None):
+        if name:
+            self.name = name
+        if type:
+            self.type = type
+        if price:
+            self.price = price
+
+
+
+bomb = Bomb('Carl')
+print(bomb.name,bomb.type,bomb.price)
+
+
+bomb.update(price = 300, name = 'Bob')
+print(bomb.name,bomb.type,bomb.price)
