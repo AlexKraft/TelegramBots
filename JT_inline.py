@@ -22,24 +22,40 @@ trip_dict = {}
 
 class Trip:
     def __init__(self,trip_id):
+        self.trip = {}
+        
+        
         self.ch_id = trip_id
         self.m_id = ''
-        self.title = 'Болванка'
-        self.date = '\nДата: '
+        self.title = 'Название поездки'
+        self.date = 'Дата: '
         self.descr = 'Описание <- '
         self.pic = None
-        self.cond = ''
-        self.price = ['\n*Цена:*\n']
-        self.event = self.update()
+        self.cond = []
+        self.price = []
+        self.event = f'*ЗАГОЛОВОК*\nДата\nОписание\n\n*Цена:*\n_ЦЕНА1 - условия1_\n_ЦЕНА2 - условия2_'
         self.members = {}
        
     def __str__ (self):
         print (self.title, self.dates , self.price )
 
     def update (self):
-        price  = ''.join(self.price)
+        
         tail = '\nЗаписывайтесь у нашего бота -> @prjTestBot\nИли по телефону ..................'
-        self.event = f'*{self.title}*\n{self.date}\n{self.descr}\n{self.cond}\n{price}{tail}'
+        
+        print ('---------------> GOT HERE !!!!!!!!!!!!!!!!!', len(self.price) ,len(self.cond), len(self.price) == len(self.cond))
+        
+        if len(self.price) == len(self.cond):
+            price = ''
+            for elem in range(len(self.price)):
+                num,des = ''.join(self.price[elem]),''.join(self.cond[elem])
+                price += f'_{num}_ - {des}\n'
+                
+            self.event = f'*{self.title}*\n{self.date}\n{self.descr}\n\n*Цена:*\n{price}{tail}'
+        else:
+            price  = '\n'.join(self.price)
+            cond  = '\n'.join(self.cond)
+            self.event = f'*{self.title}*\n{self.date}\n{self.descr}\n{cond}\n\n*Цена:*\n_{price}_{tail}'
        
         return self.event
         
@@ -108,7 +124,7 @@ def set_descr (m):
 def set_cond (m):
     cond = m.text
     trip = trip_dict[m.chat.id]
-    trip.cond = cond
+    trip.cond.append(cond)
     bot.delete_message(m.chat.id,m.message_id) 
     bot.delete_message(m.chat.id,m.message_id - 1)  
     
@@ -118,17 +134,23 @@ def set_cond (m):
         bot.edit_message_text( trip.update(), chat_id = trip.ch_id , message_id = trip.m_id, reply_markup = new_trip_markup(), parse_mode= "Markdown")
     
 def set_price (m):
+    
     price = m.text
-    trip = trip_dict[m.chat.id]
-    trip.price.append('_'+price+'_\n')
+    
     bot.delete_message(m.chat.id,m.message_id) 
     bot.delete_message(m.chat.id,m.message_id - 1)  
     
-    if trip.pic:
-        bot.edit_message_caption(caption= trip.update(), chat_id = trip.ch_id , message_id = trip.m_id, parse_mode="Markdown", reply_markup=new_trip_markup())
+    if price.isdigit():
+        trip = trip_dict[m.chat.id]
+        trip.price.append(price)        
+        
+        if trip.pic:
+            bot.edit_message_caption(caption= trip.update(), chat_id = trip.ch_id , message_id = trip.m_id, parse_mode="Markdown", reply_markup=new_trip_markup())
+        else:
+            bot.edit_message_text( trip.update(), chat_id = trip.ch_id , message_id = trip.m_id, reply_markup = new_trip_markup(), parse_mode= "Markdown")
     else:
-        bot.edit_message_text( trip.update(), chat_id = trip.ch_id , message_id = trip.m_id, reply_markup = new_trip_markup(), parse_mode= "Markdown")
-    
+        msg = bot.send_message(m.chat.id, "Укажите цену цифрами:")
+        bot.register_next_step_handler(msg, set_price)
 
 def set_pic (m):
     
@@ -162,24 +184,33 @@ def new_trip_markup():
     markup = InlineKeyboardMarkup()
     
     markup.add(InlineKeyboardButton('Заголовок',callback_data = 'title'),
-               InlineKeyboardButton('Даты',callback_data = 'dates'),
-               InlineKeyboardButton('Реклама',callback_data = 'descr'),
-               InlineKeyboardButton('фото',callback_data = 'pic'),
-               InlineKeyboardButton('Умови',callback_data = 'cond'),
+               InlineKeyboardButton('Дата',callback_data = 'dates'),
+               InlineKeyboardButton('Описание',callback_data = 'descr'),
+               InlineKeyboardButton('Фото',callback_data = 'pic'),
+               InlineKeyboardButton('Условия',callback_data = 'cond'),
                InlineKeyboardButton('Цена',callback_data = 'price'))
    
     markup.add(InlineKeyboardButton('Постим?',callback_data = 'post'))
-
+    markup.add(InlineKeyboardButton('Назад', callback_data = 'restart'))
+    
     return markup
 
 def get_trips_markup(trips, key = None):
     markup = InlineKeyboardMarkup()
     
-    if key:
-        print ('ENTERED')
+    if key == 'title':
+#        print ('ENTERED')
         for k in trips:
-            print (type(trips[k]['title']), trips[k]['title'])
-            markup.add(InlineKeyboardButton(trips[k]['title'], callback_data = trips[k]['id']))
+            print (trips[k]['id'], type (trips[k]['id']))
+            markup.add(InlineKeyboardButton(trips[k]['title'], callback_data = trips[k]['id'])) #str(trips[k]['id'])
+    
+    elif key == 'reg':
+        print (trips.keys())
+        for k in trips['price'][1:]:
+            markup.add(InlineKeyboardButton(f'Register for: {k}', callback_data = k))
+            print (k, type(k))
+        markup.add(InlineKeyboardButton('Назад', callback_data = 'restart'))
+        
     else:
         for k in trips:
             markup.add(InlineKeyboardButton(trips[k], callback_data = trips[k]))
@@ -221,30 +252,47 @@ def callback_query(call):
     if call.data == "trips":                
         trips = Trip.get_list()
         bot.delete_message(ch_id,msg_id)
-        bot.send_message(ch_id, 'Актуальные поездки: ', reply_markup = get_trips_markup(trips, 'title')) 
+        bot.send_message(ch_id, 'Актуальные поездки: ', reply_markup = get_trips_markup(trips, 'title'), parse_mode="Markdown") 
       
     elif call.data == "add":   
         bot.delete_message(ch_id,msg_id)
         trip = Trip (ch_id) 
         trip_dict[ch_id] = trip
-        bot.send_message(ch_id, trip.event, reply_markup = new_trip_markup())      
+        bot.send_message(ch_id, trip.event, reply_markup = new_trip_markup(), parse_mode="Markdown")      
 
-
-    elif re.match('\*.+\*', call.data): #re.fullmatch('\*.+\*', call.data): 
+#re.match('\d{14}', call.data): #re.fullmatch('\*.+\*', call.data): 
+    elif re.match('\d{14}', call.data):    # обработка кнопок с 
         trips = Trip.get_list()
+#        print (trips, '\n\n\n') 
+        trip = {}
         for n in trips:
+#            print (call.data, trips[n]['id'], call.data in trips[n]['id'])
             if call.data in trips[n]['id']:
-                trip_dict[ch_id] = trips[n]
-            
+                trip = trips[n]
+                trip_dict[ch_id] = trip
+                
+#                print (trip)
+                msg = f'{trip["title"]}\n{trip["date"]}\n{trip["cond"]}\n{trip["price"]}'
+#                print (msg)
+                bot.delete_message(ch_id,msg_id)
+#                get_trips_markup(trip, 'reg')
+                
+                bot.send_photo(ch_id, trip["pic"] , caption = msg, reply_markup = get_trips_markup(trip, 'reg'), parse_mode="Markdown")    
         
-#        bot.delete_message(ch_id,msg_id)
-        msg = f'*{[title]}*\n{self.date}\n{self.descr}\n{self.cond}\n{price}{tail}'
-        bot.send_message(ch_id, 'Что ты хочешь знать по этой поездке', reply_markup = get_trips_markup(trip)) 
+    elif call.data == "restart":     
+         bot.delete_message(ch_id,msg_id)
+#         bot.send_message(ch_id, 'Актуальные поездки: ', reply_markup = get_trips_markup(trips, 'title')) 
+         bot.send_message(ch_id, "ADMIN buttons", reply_markup = start_markup())
+       
         
     else:
         trip = trip_dict[ch_id]    
         trip.m_id = msg_id 
     
+    
+    if re.match('\d{4}|\d{3}', call.data):   # обработка кнопки с ценами
+        print ('do smth')
+        
     if call.data == "title":  
                      
         msg = bot.send_message(ch_id, "Enter new title:")
@@ -274,6 +322,7 @@ def callback_query(call):
 #        trip = trip_dict[ch_id]               
         msg = bot.send_message(ch_id, "Price:")
         bot.register_next_step_handler(msg, set_price)
+    
         
     if call.data == "post":     
 #        trip = trip_dict[ch_id] 
