@@ -21,7 +21,9 @@ admins = {'383621032': "alex_under_kraft"}
 trip_dict = {}
 
 '''
+
     Inline keyboards markups
+    
 '''        
 def start_markup(ch_id):
     
@@ -55,7 +57,7 @@ def get_trips_markup(trips, key = None):
     markup = InlineKeyboardMarkup()
     
     if key == 'title':
-#        print ('ENTERED')
+        print ('ENTERED')
         for k in trips:
             print ('get_trips_markup<<<<<<<title<<<<<<<<<<',trips[k]['id'])
             markup.add(InlineKeyboardButton(trips[k]['title'], callback_data = trips[k]['id'])) #str(trips[k]['id'])
@@ -75,7 +77,9 @@ def get_trips_markup(trips, key = None):
     return markup
 
 '''
+
     My TRIP dict like object
+    
 '''
 def upload (d):
     
@@ -88,7 +92,7 @@ def upload (d):
     trips = json.load(open('trips.json', "r"))
     s = trip['title']
     trips[s] = trip        
-    json.dump( trips , open('trips.json', "w+"), indent = 2, ensure_ascii = False)
+    json.dump( trips , open('trips.json', "w+"), indent = 2, ensure_ascii=False)
     
 
    
@@ -135,7 +139,9 @@ def get_list():
 
         
 '''
+
     Keep it clean and update the trip Funcs
+    
 ''' 
 def set_pic (m,key):    
     
@@ -206,20 +212,29 @@ def start_func (m):
 @bot.callback_query_handler(func=lambda call: call.data == "trips")
 def get_trips(call):
     trips = get_list()
+    
     ch_id = call.message.chat.id
+    msg_id = call.message.message_id
+    
+    bot.delete_message(ch_id,msg_id)
+     
     bot.send_message(ch_id, 'Актуальные поездки: ', reply_markup = get_trips_markup(trips, 'title'), parse_mode="Markdown")
  
 @bot.callback_query_handler(func=lambda call: re.match('\d{14}', call.data))
 def get_trip_data(call):
     print("GOT IN HERE get_trip_data")
     ch_id = call.message.chat.id
+    msg_id = call.message.message_id
+    
+    bot.delete_message(ch_id,msg_id)
+    
     trips = get_list()
     for n in trips:
         if call.data in trips[n]['id']:
             trip = trips[n]
             trip_dict[ch_id] = trip
             
-            msg = f'{trip["title"]}\n{trip["date"]}\n{trip["cond"]}\n{trip["price"]}'
+            msg = trip['event']#f'{trip["title"]}\nДата:{trip["date"]}\n{trip["cond"]}\n{trip["price"]}'
             if trip["pic"]:
                 bot.send_photo(ch_id, trip["pic"] , caption = msg, reply_markup = get_trips_markup(trip, 'reg'), parse_mode="Markdown")  
             else:
