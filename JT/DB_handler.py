@@ -1,6 +1,6 @@
 
 import json
-from datetime import datetime, time
+from datetime import datetime
 
 def load_dummy():
     dummyDB = json.load(open('dummy.json', "r"))
@@ -25,7 +25,7 @@ def dumpDB(dummy):
     dummy['active'] = True       
     
     for price in dummy['price']:
-        dummy['members'][price] = {}
+        dummy['members'][price] = []
         
     db['trips'][trip_id] = dummy  
     

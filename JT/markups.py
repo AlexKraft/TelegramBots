@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Aug 28 12:14:06 2019
 
-@author: pc
-"""
-
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup ,KeyboardButton, ReplyKeyboardRemove
 
 '''
 
@@ -47,17 +42,37 @@ def gen_markup(db, key = None):
         markup.add(InlineKeyboardButton('Постим?',callback_data = 'post'))
         
     elif key == 'register':
-        print ('get_trips_markup<<<<<<<reg<<<<<<<<<<',trips.keys())
-        for k in trips['price']:
-            markup.add(InlineKeyboardButton(f'Register for: {k}', callback_data = 'reg' + k))
+        print ('get_trips_markup<<<<<<<reg<<<<<<<<<<',db.keys())
+        for k in db['price']:
+            markup.add(InlineKeyboardButton(f'Register for: {k}', callback_data = k))
             print (k, type(k))
-        markup.add(InlineKeyboardButton('Назад', callback_data = 'restart'))
         
+#    elif key == 'usr_data':
+#        markup.add(KeyboardButton('Телефон', 
+#                                  request_location = False,
+#                                  request_contact = True))
+        
+    
     else:
         print ('get_trips_markup<<<<<<<else<<<<<<<<<<')
+        pass
 #        for k in trips:
 #            markup.add(InlineKeyboardButton(trips[k], callback_data = trips[k]))
             
     markup.add(InlineKeyboardButton('Назад', callback_data = 'back'))    
+    
+    return markup
+
+def usr_data_markup():
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    
+    markup.add(KeyboardButton('Телефон', 
+                              request_location = False,
+                              request_contact = True))
+    
+    return markup
+
+def remove_markup():
+    markup = ReplyKeyboardRemove()
     
     return markup

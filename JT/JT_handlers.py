@@ -22,7 +22,7 @@ Created on Wed Aug 28 12:29:20 2019
 import telebot
 import re
 
-from markups import start_markup, gen_markup
+from markups import start_markup, gen_markup, usr_data_markup, remove_markup
 from DB_handler import load_dummy, dump_dummy, loadDB, dumpDB, update, newUserDB
 
 API_TOKEN = '989604812:AAE1NWU3CwhDfo41ucg80nE2aboimTmlDtQ'
@@ -34,35 +34,23 @@ addings = ["date","descr","pic","cond","price", 'title']
 
 bot = telebot.TeleBot(API_TOKEN)
 
-def set_pic (m,key,msg_id):    
-    print ('FOTO <<<<<<<<<<<<<<<<<<<<<<<<<<<< ', key)    
+
+def set_usr_data(m, user, call):
     ch_id = str (m.chat.id) 
-    
-    dummyDB = load_dummy()
-    dummy = dummyDB.setdefault(ch_id, dummyDB['dummy'])
-    
     
     bot.delete_message(m.chat.id,m.message_id)
     bot.delete_message(m.chat.id,m.message_id - 1)
     
-    if (m.photo):
-        pic = m.photo[0].file_id
-        trip['pic'] = pic 
-        bot.delete_message(trip['ch_id'],trip['m_id'])
-        bot.send_photo(chat_id = m.chat.id, photo = pic , caption = update(trip), reply_markup = new_trip_markup(), parse_mode = "Markdown")
-        print ('Got picture <<<<<<<<<<<<<<<<<<<<<<<<<<<<', pic)
+    user['phone'] = m.contact.phone_number
     
-    else:    
-        if trip['pic']:
-            bot.edit_message_caption(caption = update(trip), chat_id = trip['ch_id'], message_id = trip['m_id'],   parse_mode="Markdown", reply_markup=new_trip_markup())
-        else:
-    #        print ('>>>> edit mesage',)
-            bot.edit_message_text(text = update(trip), chat_id = trip['ch_id'], message_id = trip['m_id'] ,  reply_markup = new_trip_markup(), parse_mode= "Markdown")
-                           
-    trip_dict[m.chat.id] = trip    
-
-
-def set_trip (m,key,msg_id):    
+    db = loadDB()
+    db['users'][ch_id] = user
+    newUserDB(db)
+    
+    reg_forms(call)
+    
+    
+def set_trip (m, key,msg_id):    
     
     print ('>>>>>>>>>>>>>>>>>>>>> KEY ', key)
     
@@ -122,12 +110,19 @@ def set_trip (m,key,msg_id):
 def start_func (m):    
     ch_id = str (m.chat.id) 
     db = loadDB()
-    users = db["members"]
+    users = db["users"]
     
     if users.setdefault(ch_id, None):        
         if users[ch_id]['admin']:      
-            bot.send_message(ch_id, "ADMIN buttons", reply_markup = start_markup(ch_id))  
-            
+            bot.send_message(chat_id = ch_id, 
+                             text = "ADMIN buttons", 
+                             reply_markup = start_markup(ch_id))  
+        else:
+            bot.send_message(chat_id = ch_id, 
+                          text = 'Актуальные поездки: \n', 
+                          reply_markup = gen_markup(db, 'trips_list'), 
+                          parse_mode = "Markdown")
+        
     else:
         newUsr = {}
         if m.chat.first_name is not None:
@@ -143,9 +138,10 @@ def start_func (m):
         newUsr["phone"]= None
         newUsr["admin"]= False
         
-        db["members"][ch_id] = newUsr
+        db["users"][ch_id] = newUsr
         
         newUserDB(db)
+        
         
         bot.send_message(chat_id = ch_id, 
                           text = 'Актуальные поездки: \n', 
@@ -162,7 +158,9 @@ def callback_func(call):
     
     db = loadDB()
     dummyDB = load_dummy()
-    dummy = dummyDB.setdefault(ch_id, dummyDB['dummy'])    
+    dummy = dummyDB.setdefault(ch_id, dummyDB['dummy']) 
+    
+    
 
     if call.data == "add":  
         dummy['event'] = update(dummy)
@@ -175,8 +173,6 @@ def callback_func(call):
         
     if call.data == "trips":
         text = 'Актуальные поездки: \n'
-#        for trip in db['trips']:
-#            trip['members'].values()
         bot.edit_message_text(text = text, 
                               chat_id = ch_id, 
                               message_id = msg_id,  
@@ -184,17 +180,18 @@ def callback_func(call):
                               parse_mode = "Markdown")
         
     if call.data == "back": 
-        if db['members'][ch_id]['admin']:          
-            bot.edit_message_text(text = "ADMIN buttons", 
-                                  chat_id = ch_id, 
-                                  message_id = msg_id, 
-                                  reply_markup = start_markup(ch_id))        
+        
+        bot.delete_message(ch_id,msg_id)
+        
+        if db['users'][ch_id]['admin']:          
+            bot.send_message(chat_id = ch_id, 
+                             text = "ADMIN buttons", 
+                             reply_markup = start_markup(ch_id))          
         else:
-            bot.edit_message_text(text = 'Актуальные поездки: \n', 
-                                  chat_id = ch_id, 
-                                  message_id = msg_id, 
-                                  reply_markup = gen_markup(db, 'trips_list'), 
-                                  parse_mode = "Markdown")
+            bot.send_message(chat_id = ch_id, 
+                              text = 'Актуальные поездки: \n', 
+                              reply_markup = gen_markup(db, 'trips_list'), 
+                              parse_mode = "Markdown")
             
     if call.data == "post":     
         
@@ -247,8 +244,9 @@ def callback_add_func(call):
         
     s = bot.send_message(ch_id, msg)
     bot.register_next_step_handler(s, set_trip, call.data, msg_id)
+  
     
-
+# call for trip_ID
 @bot.callback_query_handler(func=lambda call: re.match('\d{14}', call.data))
 def get_trip_data(call):
     print("GOT IN HERE get_trip_data")
@@ -259,82 +257,137 @@ def get_trip_data(call):
     
     db = loadDB()
     trips = db['trips']       
-   
+    users = db['users']
+    
     if trip_id in trips:
         trip = trips[trip_id]
-        users = db["members"]        
         
-       
-        if users[ch_id]['admin']:    
-#        if ch_id in db['admins']:
-            print ("IM IN HERE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+        if users[ch_id]['admin']:
+#            members_price = trip["members"].keys()
+            
             msg ='Зарегистрировано:\n'
             
-            mem_cat = trip['members'].keys()
-            
-            for cat in mem_cat:
-                usrs = trip['members'][cat]
-                for user in users:
-                    
-            
-            members = trip['members']
-            print (members)
-            for price_member in members: 
-                print (price_member)
+            for cat in trip["members"]:
+                members = trip["members"][cat]
+                print (members)
+                msg += f'\nНа {cat}:\n'
                 i = 1
-                msg += f'{price_member}:\n'
-                for n in price_member:
-#                    msg += f'{i}){price_member[n]["fname"]} {price_member[n]["lname"]} (@{price_member[n]["uname"]}): {price_member[n]["phone"]}\n'
-                    print (f'{i}) {n}')
-                    i += i
+                for n in members:
+                    msg += f'{i}){users[n]["fname"]} {users[n]["lname"]} (@{users[n]["uname"]}): {users[n]["phone"]}\n'
+                    i += 1
+            
+            bot.edit_message_text(text = msg, 
+                                   chat_id = ch_id, 
+                                   message_id = msg_id, 
+                                   reply_markup = gen_markup(trip))
+#       
+##            
+###        if ch_id in db['admins']:
+#        print ("IM IN HERE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+#        msg ='Зарегистрировано:\n'
+#        
+#        usrs_price = users.keys()
+#        
+#        for price in usrs_price:
+#            usr = trip['members'][cat]
+#            for user in users:
+#                pass            
+#           
+#            members = trip['members']
+#            print (members)
+#            for price_member in members: 
+#                print (price_member)
+#                i = 1
+#                msg += f'{price_member}:\n'
+#                for n in price_member:
+#                #                    msg += f'{i}){price_member[n]["fname"]} {price_member[n]["lname"]} (@{price_member[n]["uname"]}): {price_member[n]["phone"]}\n'
+#                    print (f'{i}) {n}')
+#                    i += i
             
             
-#            bot.edit_message_text(text = msg, 
-#                                   chat_id = ch_id, 
-#                                   message_id = msg_id, 
-#                                   reply_markup = gen_markup(trip)
-#                                  )
+            
         else:        
             if trip['pic']:
-                bot.edit_message_caption(caption = trip['event'], 
-                                         chat_id = ch_id, 
-                                         message_id = msg_id, 
-                                         reply_markup = gen_markup(trip, 'register'),   
-                                         parse_mode="Markdown")
-            else:
+                bot.delete_message(ch_id,msg_id)
+                bot.send_photo(chat_id = ch_id, 
+                               photo = trip['pic'] , 
+                               caption = trip['event'], 
+                               reply_markup = gen_markup(trip, 'register'), 
+                               parse_mode = "Markdown")
+            else:                
                 bot.edit_message_text(text = trip['event'], 
                                       chat_id = ch_id, 
                                       message_id = msg_id, 
                                       reply_markup = gen_markup(trip, 'register'), 
-                                      parse_mode= "Markdown")    
+                                      parse_mode = "Markdown")    
             
             dummyDB = load_dummy()  
             dummy = users[ch_id].copy()
-            dummy['registered'] = {trip_id:None}
+            dummy['interested'] = trip_id
             dummyDB[ch_id] = dummy
             dump_dummy(dummyDB)
 
 
 
-@bot.callback_query_handler(func=lambda call: re.match('reg', call.data))
+@bot.callback_query_handler(func=lambda call:  re.match('\d{4}|\d{3}', call.data))
 def reg_forms(call):
+    
+    print ("IM IN HERE REG FORMS<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     ch_id = str(call.message.chat.id)
-    s = call.data[3:]
+    msg_id = call.message.message_id
     
     dummyDB = load_dummy()  
     dummy = dummyDB[ch_id]
-    key = dummy['registered'].keys()
+    trip_id = dummy["interested"]
     
-#    if re.match('\d{3,4}', s):
-#        dummy['registered'][key[-1]] = s
+    db = loadDB()
+    user = db['users'][ch_id]
+    
+    if ch_id in db["trips"][trip_id]["members"][call.data]:
+        bot.answer_callback_query(call.id, 
+                                  text = 'Вы УЖЕ зарегистрированы на поездку',
+                                  cache_time = 2)
+        
+    else:
+        if user['phone'] and (user['fname'] or user['lname']):
+            bot.answer_callback_query(call.id, 
+                                      text = 'вы успешно зарегистрировались',
+                                      cache_time = 2)
+            
+            db['trips'][trip_id]["members"][call.data].append(ch_id)
+            newUserDB(db)
+            bot.delete_message(ch_id,msg_id)
+#            start_func (call.message)
+            text = f'Вы успешно зарегистрировались\n{db["trips"][trip_id]["date"]}\n*{db["trips"][trip_id]["title"]}*\nЧекайте на Инфо-лист з умовами туру'
+            bot.send_message(chat_id = ch_id, 
+                             text = text, 
+                             parse_mode = "Markdown", 
+                             reply_markup = remove_markup()) 
+        else:
+            s = bot.send_message(chat_id = ch_id, 
+                         text = 'Можно ваш номер?', 
+                         parse_mode = "Markdown", 
+                         reply_markup = usr_data_markup())    
+       
+        
+            bot.register_next_step_handler(s, set_usr_data, user, call)
+
+
+#@bot.message_handler(content_types=['contact'])
+#def get_contact(m):
+#    ch_id = str (m.chat.id)   
+#    msg_id = str (m.message_id)
 #    
-#    if 
+#    usr = m.contact
+#    
+#    print (usr, usr.phone_number) 
     
+
     
-    
-                
 @bot.message_handler(commands=['test'])
-def st_func (m):        
+def st_func (m):  
+    ch_id = str (m.chat.id)   
+    msg_id = str (m.message_id)
 #    db = {'dummy': {'ch_id': '',
 #          'm_id': '',
 #          'title': 'Название поездки',
@@ -346,31 +399,44 @@ def st_func (m):
 #          'event': '*REAL EVENT*',
 #          'members': {}}}
 #    dump_dummy(db)
-#    
-    ch_id = str (m.chat.id) 
-    db = loadDB()
-    usr = db["members"]
-        
-    if usr.setdefault(ch_id, None):
-        print ('WE HAVE YOU <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
-    else:
-        newUsr = {}
-        if m.chat.first_name is not None:
-            fname = m.chat.first_name 
-        if m.chat.last_name is not None:
-            lname = m.chat.last_name 
-        if m.chat.username is not None:
-            uname = m.chat.username
     
-        newUsr["fname"]= fname
-        newUsr["lname"]= lname
-        newUsr["uname"]= uname
-        newUsr["phone"]= None
-        newUsr["admin"]= True
-        
-        db["members"][ch_id] = newUsr
-        
-        newUserDB(db)
+    trip = {}
+    
+    s = bot.send_message(chat_id = ch_id, 
+                     text = 'Можно ваш номер?', 
+                     parse_mode = "Markdown", 
+                     reply_markup = remove_markup())    
+   
+    
+    bot.register_next_step_handler(s, usr_data)
+    
+    
+    
+    
+  
+#    db = loadDB()
+#    usr = db["members"]
+#        
+#    if usr.setdefault(ch_id, None):
+#        print ('WE HAVE YOU <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
+#    else:
+#        newUsr = {}
+#        if m.chat.first_name is not None:
+#            fname = m.chat.first_name 
+#        if m.chat.last_name is not None:
+#            lname = m.chat.last_name 
+#        if m.chat.username is not None:
+#            uname = m.chat.username
+#    
+#        newUsr["fname"]= fname
+#        newUsr["lname"]= lname
+#        newUsr["uname"]= uname
+#        newUsr["phone"]= None
+#        newUsr["admin"]= True
+#        
+#        db["members"][ch_id] = newUsr
+#        
+#        newUserDB(db)
 #    pass
         
 @bot.message_handler(func=lambda message: True)
