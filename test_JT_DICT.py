@@ -260,7 +260,8 @@ def callback_set_func(call):
         s = bot.send_message(ch_id, msg)
         bot.register_next_step_handler(s, set_trip, call.data)
     
-    if call.data == "restart":     
+    if call.data == "restart": 
+        bot.delete_message(ch_id,msg_id)
         start_markup(ch_id)
              
     if call.data == "date":           

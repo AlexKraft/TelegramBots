@@ -11,7 +11,7 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 #telebot.logger.basicConfig(filename='filename.log', level=logging.DEBUG,format=' %(asctime)s - %(levelname)s - %(message)s')
 
 
-API_TOKEN = '750042395:AAEIWfleAt9JE-JeNIznYEdK70RfasKpXec'
+API_TOKEN = '989604812:AAE1NWU3CwhDfo41ucg80nE2aboimTmlDtQ'
 
 
 #knownUsers = []  # todo: save these in a file,
@@ -47,12 +47,12 @@ def load_db ():
 def upload_db():
     
     with open('datastore.json', 'w') as f:
-        datastore = {'users_dict':users_dict,'game_users':game_users,'active_push':active_push,'game_text':game_text}        
+        datastore = {'users_dict':users_dict,'game_users':game_users,'active_push':active_push,'game_text':game_text,'added':added_players}        
         json.dump(datastore, f, indent=2, ensure_ascii=False)     
 
 def add_user_togame():
     
-    global game_text, game_users, users_dict
+    global game_text, game_users, users_dict, added_players
     
     text = game_text + 'Уже записались на игру:\n'
     i = 0
@@ -69,11 +69,15 @@ def add_user_togame():
 
 def form_teams():
     players = game_users.keys()
-    global game_text
+    global game_text, added_players
     team_list = []
     
     for n in players:
         team_list.append(users_dict[(n)])
+    if len(added_players) != 0:
+        for n in added_players:
+            team_list.append(n)
+        
     random.shuffle(team_list)
     members = len (team_list)
     
@@ -82,12 +86,12 @@ def form_teams():
     if members < 13:
         teamA = team_list[0::2]
         teamB = team_list[1::2]
-        teams = {'Команда A': teamA ,'Команда B': teamB} 
+        teams = {'\nTeam "RED"': teamA ,'\nTeam "BLUE"': teamB} 
     elif members >= 13:
         teamA = team_list[0::3]
         teamB = team_list[1::3]
         teamC = team_list[2::3]
-        teams = {'Команда A': teamA ,'Команда B': teamB,'Команда C': teamC} 
+        teams = {'\nTeam "RED"': teamA ,'\nTeam "BLUE"': teamB,'\n\nTeam "NEUTRAL"': teamC} 
 #    else :
 #        return 'ДЕЛИТЕСЬ вручную'   
     
@@ -221,6 +225,11 @@ def add_player(m):
     global added_players
     if str(cid) in users_dict:
         added_players.append(m.text.replace('/add ',''))
+        players_list = add_user_togame()
+        for n in game_users:
+            bot.edit_message_text(players_list,  chat_id= n,  message_id = game_users[n] )
+            bot.edit_message_reply_markup(chat_id= n, message_id = game_users[n], reply_markup=gen_markup("Передумал", "deny"))
+            
         upload_db()
     else:
         bot.send_message(cid, "Ты еще не подтвердил секретным кодом что тебе можно")
