@@ -401,17 +401,17 @@ def st_func (m):
 #          'members': {}}}
 #    dump_dummy(db)
     
-    trip = {}
-    
-    s = bot.send_message(chat_id = ch_id, 
-                     text = 'Можно ваш номер?', 
-                     parse_mode = "Markdown", 
-                     reply_markup = remove_markup())    
-   
-    
-    bot.register_next_step_handler(s, usr_data)
-    
-    
+#    trip = {}
+#    
+#    s = bot.send_message(chat_id = ch_id, 
+#                     text = 'Можно ваш номер?', 
+#                     parse_mode = "Markdown", 
+#                     reply_markup = remove_markup())    
+#   
+#    
+#    bot.register_next_step_handler(s, usr_data)
+#    
+#    
     
     
   
@@ -440,17 +440,17 @@ def st_func (m):
 #        newUserDB(db)
 #    pass
         
-@bot.message_handler(func=lambda message: True)
-def message_handler(message):
-    print(message.text)
-    bot.reply_to(message, "still working")
-        
-@bot.message_handler(content_types=['location'])
-def location(m):
-    print (f'LONG:{m.location.longitude} LAT:{m.location.latitude}')
-    
-@bot.edited_message_handler(content_types=['location'])
-def location_edit(m):
-    print (f'Location_edited\nLONG:{m.location.longitude} LAT:{m.location.latitude}')
-    
+#@bot.message_handler(func=lambda message: True)
+#def message_handler(message):
+#    print(message.text)
+#    bot.reply_to(message, "still working")
+#        
+#@bot.message_handler(content_types=['location'])
+#def location(m):
+#    print (f'LONG:{m.location.longitude} LAT:{m.location.latitude}')
+#    
+#@bot.edited_message_handler(content_types=['location'])
+#def location_edit(m):
+#    print (f'Location_edited\nLONG:{m.location.longitude} LAT:{m.location.latitude}')
+#    
 bot.polling(interval=2, timeout=100)
