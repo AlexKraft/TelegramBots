@@ -124,24 +124,22 @@ def start_func (m):
                           parse_mode = "Markdown")
         
     else:
-        newUsr = {}
+        dummyDB = load_dummy()
+        newUsr = dummyDB["dummyUsr"]
+        
         if m.chat.first_name is not None:
             fname = m.chat.first_name 
+            newUsr["fname"]= fname
         if m.chat.last_name is not None:
             lname = m.chat.last_name 
+            newUsr["lname"]= lname
         if m.chat.username is not None:
             uname = m.chat.username
-    
-        newUsr["fname"]= fname
-        newUsr["lname"]= lname
-        newUsr["uname"]= uname
-        newUsr["phone"]= None
-        newUsr["admin"]= False
+            newUsr["uname"]= uname    
         
         db["users"][ch_id] = newUsr
         
-        newUserDB(db)
-        
+        newUserDB(db)        
         
         bot.send_message(chat_id = ch_id, 
                           text = 'Актуальные поездки: \n', 
@@ -163,6 +161,7 @@ def callback_func(call):
     
 
     if call.data == "add":  
+        dummy = dummyDB['dummy']
         dummy['event'] = update(dummy)
         text = dummy['event']        
         bot.edit_message_text(text = text, 
@@ -170,6 +169,8 @@ def callback_func(call):
                               message_id = msg_id,  
                               reply_markup = gen_markup(dummy, 'new_trip'), 
                               parse_mode="Markdown")
+        dummyDB[ch_id] = dummy
+        dump_dummy(dummyDB)
         
     if call.data == "trips":
         text = 'Актуальные поездки: \n'
@@ -273,7 +274,7 @@ def get_trip_data(call):
                 msg += f'\nНа {cat}:\n'
                 i = 1
                 for n in members:
-                    msg += f'{i}){users[n]["fname"]} {users[n]["lname"]} (@{users[n]["uname"]}): {users[n]["phone"]}\n'
+                    msg += f'{i}){users[n]["fname"]} {users[n]["lname"]} (@{users[n]["uname"]}): +{users[n]["phone"]}\n'
                     i += 1
             
             bot.edit_message_text(text = msg, 
@@ -441,7 +442,15 @@ def st_func (m):
         
 @bot.message_handler(func=lambda message: True)
 def message_handler(message):
+    print(message.text)
     bot.reply_to(message, "still working")
         
+@bot.message_handler(content_types=['location'])
+def location(m):
+    print (f'LONG:{m.location.longitude} LAT:{m.location.latitude}')
+    
+@bot.edited_message_handler(content_types=['location'])
+def location_edit(m):
+    print (f'Location_edited\nLONG:{m.location.longitude} LAT:{m.location.latitude}')
     
 bot.polling(interval=2, timeout=100)

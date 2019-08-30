@@ -46,7 +46,7 @@ def update(trip):
             num,des = ''.join(trip['price'][elem]),''.join(trip['cond'][elem])
             price += f'_{num}_ грн - {des}\n'
             
-        trip['event'] = f"*{trip['title']}*\n\nДата: {trip['date']}\n\n{trip['descr']}\n\n*Цена:*\n{price}{tail}"
+        trip['event'] = f"*{trip['title']}*\n\nДата: {trip['date']}\n\n{trip['descr']}\n\n*Цена:*\n{price}\n{tail}"
     else:
         price  = ' грн\n'.join(trip['price'])
         cond  = '\n'.join(trip['cond'])
