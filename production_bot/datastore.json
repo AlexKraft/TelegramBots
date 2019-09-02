@@ -1,39 +1,170 @@
 {
-  "users_dict": {
-    "383621032": "AlexKucherenko(@alex_under_kraft)",
-    "784675420": "360prj(@projects360)",
-    "247931994": "AlexHryshman(@Hryshman)",
-    "496460985": "Alexandr(@)",
-    "364089346": "Dima Upps(@kosmas1310)",
-    "306894487": "AleksandrTsybin(@)",
-    "364848458": "OleksandrBondarets(@BondiniAlex)",
-    "464986980": "Alexey(@)",
-    "386914650": "💎Arthur(@artugan)",
-    "360544542": "Olexandr(@olexandr_ua)",
-    "796988537": "Romedal(@)",
-    "476928592": "AlekseyTsybin(@)",
-    "588465270": "TarasDegodyuk(@)",
-    "815823902": "DimitriBogachuk(@)",
-    "589486024": "AV(@)",
-    "717333097": "IvanSushytsky(@)",
-    "433918684": "ТиграЛунная(@)",
-    "361879891": "RomanSaiko(@rsaiko23)",
-    "558722468": "YurKo(@)",
-    "703092092": "Станіслав(@)"
+  "players": {
+    "383621032":{
+        "fname": "Alex",
+        "lname": "Kucherenko",
+        "uname": "alex_under_kraft",
+        "phone": null,
+        "admin": true
+      },
+    "247931994":{
+        "fname": "Alex",
+        "lname": "Hryshman",
+        "uname": "Hryshman",
+        "phone": null,
+        "admin": false
+      },
+    "496460985":{
+        "fname": "Alexandr",
+        "lname": null,
+        "uname": null,
+        "phone": null,
+        "admin": false
+      }, 
+    "364089346":{
+        "fname": "Dima",
+        "lname": "Upps",
+        "uname": "kosmas1310",
+        "phone": null,
+        "admin": false
+      },
+    "306894487":{
+        "fname": "Aleksandr",
+        "lname": "Tsybin",
+        "uname": null,
+        "phone": null,
+        "admin": false
+      },
+    "364848458":{
+        "fname": "Oleksandr",
+        "lname": "Bondarets",
+        "uname": "BondiniAlex",
+        "phone": null,
+        "admin": false
+      }, 
+    "464986980":{
+        "fname": "Alexey",
+        "lname": null,
+        "uname": null,
+        "phone": null,
+        "admin": false
+      },
+    "386914650":{
+        "fname": "💎Arthur",
+        "lname": null,
+        "uname": "artugan",
+        "phone": null,
+        "admin": false
+      },
+    "360544542":{
+        "fname": "Olexandr",
+        "lname": null,
+        "uname": "olexandr_ua",
+        "phone": null,
+        "admin": false
+      }, 
+    "796988537":{
+        "fname": "Romedal",
+        "lname": null,
+        "uname": null,
+        "phone": null,
+        "admin": false
+      },
+    "476928592":{
+        "fname": "Aleksey",
+        "lname": "Tsybin",
+        "uname": null,
+        "phone": null,
+        "admin": false
+      },
+    "588465270": {
+        "fname": "Taras",
+        "lname": "Degodyuk",
+        "uname": null,
+        "phone": null,
+        "admin": false
+      },
+    "815823902":{
+        "fname": "Dimitri",
+        "lname": "Bogachuk",
+        "uname": null,
+        "phone": null,
+        "admin": false
+      },
+    "589486024":{
+        "fname": "AV",q
+        "lname": null,
+        "uname": null,
+        "phone": null,
+        "admin": false
+      }, 
+    "717333097":{
+        "fname": "Ivan",
+        "lname": "Sushytsky",
+        "uname": null,
+        "phone": null,
+        "admin": false
+      },
+    "433918684":{
+        "fname": "Тигра",
+        "lname": "Лунная",
+        "uname": null,
+        "phone": null,
+        "admin": false
+      }, 
+    "361879891":{
+        "fname": "Roman",
+        "lname": "Saiko",
+        "uname": "rsaiko23",
+        "phone": null,
+        "admin": false
+      }, 
+    "558722468":{
+        "fname": "YurKo",
+        "lname": null,
+        "uname": null,
+        "phone": null,
+        "admin": false
+      }, 
+    "703092092":{
+        "fname": "Станіслав",
+        "lname": null,
+        "uname": null,
+        "phone": null,
+        "admin": false
+      }
   },
-  "game_users": {
-    "306894487": 634,
-    "476928592": 640,
-    "589486024": 643,
-    "383621032": 629,
-    "588465270": 641
+  "game": {
+      "players":{
+        "306894487": 634,
+        "476928592": 640,
+        "589486024": 643,
+        "383621032": 629,
+        "588465270": 641
+    },
+    "text_list":"",
+    "list":[],
+    "active": true,
+    "text": "Отмечаемся на сегодня 1.09 17:00-19:00 ЖК София\n",
+    "added": [
+        "овсянкин",
+        "молчанов",
+        "Руслан",
+        "someone from local bar"
+      ]
   },
-  "active_push": true,
-  "game_text": "Отмечаемся на сегодня 1.09 17:00-19:00 ЖК София\n",
-  "added": [
-    "овсянкин",
-    "молчанов",
-    "Руслан",
-    "someone from local bar"
-  ]
+  "dummyUsr": {
+    "fname": null,
+    "lname": null,
+    "uname": null,
+    "phone": null,
+    "admin": false
+  },
+  "dummyGame":{
+      "players":{},
+      "active": false,
+      "list":"",
+      "text": "Болванка на игру",
+      "added":[]
+  }
 }
