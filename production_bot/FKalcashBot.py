@@ -11,7 +11,7 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 #telebot.logger.basicConfig(filename='filename.log', level=logging.DEBUG,format=' %(asctime)s - %(levelname)s - %(message)s')
 
 
-API_TOKEN = '989604812:AAE1NWU3CwhDfo41ucg80nE2aboimTmlDtQ'
+API_TOKEN = '750042395:AAEIWfleAt9JE-JeNIznYEdK70RfasKpXec'
 
 
 #knownUsers = []  # todo: save these in a file,
@@ -193,7 +193,8 @@ def send_alert(m):
 
 @bot.message_handler(commands=['shufle'])
 def make_teams(m):
-    cid = m.chat.id    
+    cid = m.chat.id  
+    global added_players
     if str(cid) in users_dict:
         global active_push, game_users
         
@@ -204,6 +205,7 @@ def make_teams(m):
         
         active_push = False
         game_users = {}
+        added_players = []
         upload_db()
     else:
         bot.send_message(cid, "Ты еще не подтвердил секретным кодом что тебе можно")

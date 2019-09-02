@@ -440,11 +440,11 @@ def st_func (m):
 #        newUserDB(db)
 #    pass
         
-#@bot.message_handler(func=lambda message: True)
-#def message_handler(message):
-#    print(message.text)
-#    bot.reply_to(message, "still working")
-#        
+@bot.message_handler(func=lambda message: True)
+def message_handler(message):
+    print(message.text)
+    bot.reply_to(message, "still working")
+        
 #@bot.message_handler(content_types=['location'])
 #def location(m):
 #    print (f'LONG:{m.location.longitude} LAT:{m.location.latitude}')
@@ -453,4 +453,4 @@ def st_func (m):
 #def location_edit(m):
 #    print (f'Location_edited\nLONG:{m.location.longitude} LAT:{m.location.latitude}')
 #    
-bot.polling(interval=2, timeout=100)
+bot.polling()

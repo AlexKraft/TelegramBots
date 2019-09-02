@@ -1,0 +1,91 @@
+{
+  "content_type": "text",
+  "message_id": 2891,
+  "from_user": {
+    "id": 383621032,
+    "is_bot": false,
+    "first_name": "Alex",
+    "username": "alex_under_kraft",
+    "last_name": "Kucherenko",
+    "language_code": "ru"
+  },
+  "date": 1567265960,
+  "chat": {
+    "type": "private",
+    "last_name": "Kucherenko",
+    "first_name": "Alex",
+    "username": "alex_under_kraft",
+    "id": 383621032,
+    "title": null,
+    "all_members_are_administrators": null,
+    "photo": null,
+    "description": null,
+    "invite_link": null,
+    "pinned_message": null,
+    "sticker_set_name": null,
+    "can_set_sticker_set": null
+  },
+  "forward_from_chat": null,
+  "forward_from": null,
+  "forward_date": null,
+  "reply_to_message": null,
+  "edit_date": null,
+  "media_group_id": null,
+  "author_signature": null,
+  "text": "/test",
+  "entities": "[<telebot.types.MessageEntity object at 0x00000207084B5630>]",
+  "caption_entities": null,
+  "audio": null,
+  "document": null,
+  "photo": null,
+  "sticker": null,
+  "video": null,
+  "video_note": null,
+  "voice": null,
+  "caption": null,
+  "contact": null,
+  "location": null,
+  "venue": null,
+  "new_chat_member": null,
+  "new_chat_members": null,
+  "left_chat_member": null,
+  "new_chat_title": null,
+  "new_chat_photo": null,
+  "delete_chat_photo": null,
+  "group_chat_created": null,
+  "supergroup_chat_created": null,
+  "channel_chat_created": null,
+  "migrate_to_chat_id": null,
+  "migrate_from_chat_id": null,
+  "pinned_message": null,
+  "invoice": null,
+  "successful_payment": null,
+  "connected_website": null,
+  "json": {
+    "message_id": 2891,
+    "from": {
+      "id": 383621032,
+      "is_bot": false,
+      "first_name": "Alex",
+      "last_name": "Kucherenko",
+      "username": "alex_under_kraft",
+      "language_code": "ru"
+    },
+    "chat": {
+      "id": 383621032,
+      "first_name": "Alex",
+      "last_name": "Kucherenko",
+      "username": "alex_under_kraft",
+      "type": "private"
+    },
+    "date": 1567265960,
+    "text": "/test",
+    "entities": [
+      {
+        "offset": 0,
+        "length": 5,
+        "type": "bot_command"
+      }
+    ]
+  }
+}

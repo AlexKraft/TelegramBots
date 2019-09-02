@@ -1,0 +1,154 @@
+{
+  "content_type": "photo",
+  "message_id": 2890,
+  "from_user": {
+    "id": 383621032,
+    "is_bot": false,
+    "first_name": "Alex",
+    "username": "alex_under_kraft",
+    "last_name": "Kucherenko",
+    "language_code": "ru"
+  },
+  "date": 1567265646,
+  "chat": {
+    "type": "private",
+    "last_name": "Kucherenko",
+    "first_name": "Alex",
+    "username": "alex_under_kraft",
+    "id": 383621032,
+    "title": null,
+    "all_members_are_administrators": null,
+    "photo": null,
+    "description": null,
+    "invite_link": null,
+    "pinned_message": null,
+    "sticker_set_name": null,
+    "can_set_sticker_set": null
+  },
+  "forward_from_chat": {
+    "type": "channel",
+    "last_name": null,
+    "first_name": null,
+    "username": "prj360Test",
+    "id": -1001411333650,
+    "title": "360prj",
+    "all_members_are_administrators": null,
+    "photo": null,
+    "description": null,
+    "invite_link": null,
+    "pinned_message": null,
+    "sticker_set_name": null,
+    "can_set_sticker_set": null
+  },
+  "forward_from": null,
+  "forward_date": 1567096503,
+  "reply_to_message": null,
+  "edit_date": null,
+  "media_group_id": null,
+  "author_signature": null,
+  "text": null,
+  "entities": null,
+  "caption_entities": "[<telebot.types.MessageEntity object at 0x00000207084AFEB8>, <telebot.types.MessageEntity object at 0x00000207084AFBA8>, <telebot.types.MessageEntity object at 0x00000207084AFEF0>, <telebot.types.MessageEntity object at 0x00000207084AF588>, <telebot.types.MessageEntity object at 0x00000207084AF898>]",
+  "audio": null,
+  "document": null,
+  "photo": "[<telebot.types.PhotoSize object at 0x00000207084AFE80>, <telebot.types.PhotoSize object at 0x00000207084AFFD0>, <telebot.types.PhotoSize object at 0x00000207084AF390>]",
+  "sticker": null,
+  "video": null,
+  "video_note": null,
+  "voice": null,
+  "caption": "«Море, сонце, острів Джа»\n\nДата: 15-19.08\n\nНа безлюдний острів \\n\\nНіщо не зрівняється з зануренням пальців ніг у теплий пісок, вдиханням свіжого вітру та нескінченними видами бірюзового моря. \\n\\nНа острові Джа ти зможеш втекти від міської метушні та відновити свої сили. Встигни насолодитися останніми яскравими моментами цього літа\\n\\nВідпочинь у нашому турі «Море, сонце, острів Джа»\n\nЦена:\n1769 грн - своя палатка\n1789 грн - оренда\n\nЗаписывайтесь у нашего бота -> @prjTestBot\nИли по телефону ..................",
+  "contact": null,
+  "location": null,
+  "venue": null,
+  "new_chat_member": null,
+  "new_chat_members": null,
+  "left_chat_member": null,
+  "new_chat_title": null,
+  "new_chat_photo": null,
+  "delete_chat_photo": null,
+  "group_chat_created": null,
+  "supergroup_chat_created": null,
+  "channel_chat_created": null,
+  "migrate_to_chat_id": null,
+  "migrate_from_chat_id": null,
+  "pinned_message": null,
+  "invoice": null,
+  "successful_payment": null,
+  "connected_website": null,
+  "forward_from_message_id": 30,
+  "json": {
+    "message_id": 2890,
+    "from": {
+      "id": 383621032,
+      "is_bot": false,
+      "first_name": "Alex",
+      "last_name": "Kucherenko",
+      "username": "alex_under_kraft",
+      "language_code": "ru"
+    },
+    "chat": {
+      "id": 383621032,
+      "first_name": "Alex",
+      "last_name": "Kucherenko",
+      "username": "alex_under_kraft",
+      "type": "private"
+    },
+    "date": 1567265646,
+    "forward_from_chat": {
+      "id": -1001411333650,
+      "title": "360prj",
+      "username": "prj360Test",
+      "type": "channel"
+    },
+    "forward_from_message_id": 30,
+    "forward_date": 1567096503,
+    "photo": [
+      {
+        "file_id": "AgADAgADxKwxG6m3QUsXRNKbSt69cRKohQ8ABAEAAwIAA20AA_9SBAABFgQ",
+        "file_size": 24506,
+        "width": 320,
+        "height": 320
+      },
+      {
+        "file_id": "AgADAgADxKwxG6m3QUsXRNKbSt69cRKohQ8ABAEAAwIAA3gAAwFTBAABFgQ",
+        "file_size": 139868,
+        "width": 800,
+        "height": 800
+      },
+      {
+        "file_id": "AgADAgADxKwxG6m3QUsXRNKbSt69cRKohQ8ABAEAAwIAA3kABFMEAAEWBA",
+        "file_size": 188784,
+        "width": 1080,
+        "height": 1080
+      }
+    ],
+    "caption": "«Море, сонце, острів Джа»\n\nДата: 15-19.08\n\nНа безлюдний острів \\n\\nНіщо не зрівняється з зануренням пальців ніг у теплий пісок, вдиханням свіжого вітру та нескінченними видами бірюзового моря. \\n\\nНа острові Джа ти зможеш втекти від міської метушні та відновити свої сили. Встигни насолодитися останніми яскравими моментами цього літа\\n\\nВідпочинь у нашому турі «Море, сонце, острів Джа»\n\nЦена:\n1769 грн - своя палатка\n1789 грн - оренда\n\nЗаписывайтесь у нашего бота -> @prjTestBot\nИли по телефону ..................",
+    "caption_entities": [
+      {
+        "offset": 0,
+        "length": 25,
+        "type": "bold"
+      },
+      {
+        "offset": 389,
+        "length": 5,
+        "type": "bold"
+      },
+      {
+        "offset": 395,
+        "length": 4,
+        "type": "italic"
+      },
+      {
+        "offset": 419,
+        "length": 4,
+        "type": "italic"
+      },
+      {
+        "offset": 469,
+        "length": 11,
+        "type": "mention"
+      }
+    ]
+  }
+}
