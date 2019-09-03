@@ -1,0 +1,23 @@
+{
+  "players": {
+    "383621032": {
+      "fname": "Alex Kucherenko",
+      "lname": "Kucherenko",
+      "uname": "alex_under_kraft",
+      "admin": false
+    }
+  },
+  "game": {
+    "players": {
+      "383621032": "3251"
+    },
+    "active": false,
+    "text_list": "20.08\n\nÇàïèñàëèñü íà èãðó:\n1) Alex Kucherenko",
+    "list": [
+      "Alex Kucherenko"
+    ],
+    "text": "20.08",
+    "added": []
+  },
+  "crashed": 1
+}

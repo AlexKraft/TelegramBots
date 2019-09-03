@@ -4,17 +4,18 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeybo
 
 
 
-API_TOKEN = '750042395:AAEIWfleAt9JE-JeNIznYEdK70RfasKpXec'
+API_TOKEN = '989604812:AAE1NWU3CwhDfo41ucg80nE2aboimTmlDtQ'#'750042395:AAEIWfleAt9JE-JeNIznYEdK70RfasKpXec'
 
 bot = telebot.TeleBot(API_TOKEN)
 
-data = 'datastore.json'
+data = 'db.json'
 
 def loadDB():
     db = json.load(open(data, "r"))
     return db
 
 def uploadDB(db):
+    print("DB UPLOADED!!!!!!!!!!!!!!!!")
     json.dump(db, open(data, "w+"), indent = 2, ensure_ascii=False) 
 
 
@@ -28,18 +29,23 @@ def gen_markup(db, key = None):
         
     elif key == 'post':
         markup.add(InlineKeyboardButton('Постим?',callback_data = 'post'))
-        
+    
+#    elif key == 'admin_reg':
+##        markup.add(InlineKeyboardButton('Зарегистрироваться на игру',callback_data = 'reg'))
+#        markup.add(InlineKeyboardButton('Добавить игрока',callback_data = 'add'))
+#        markup.add(InlineKeyboardButton('Поделить на команды',callback_data = 'shuffle'))
+#        markup.add(InlineKeyboardButton('Отменить игру',callback_data = 'del'))
+#        markup.add(InlineKeyboardButton('Рассылка',callback_data = 'spam'))
+           
     elif key == 'show':
         markup.add(InlineKeyboardButton('Добавить игрока',callback_data = 'add'))
         markup.add(InlineKeyboardButton('Поделить на команды',callback_data = 'shuffle'))
+        markup.add(InlineKeyboardButton('Отменить игру',callback_data = 'del'))
         markup.add(InlineKeyboardButton('Рассылка',callback_data = 'spam'))
+    
     
     elif key == 'new_player':
         markup.add(InlineKeyboardButton('Зарегистрироваться на игру',callback_data = 'reg'))
-    
-    elif key == 'edit_game':
-        markup.add(InlineKeyboardButton('Редактировать текст',callback_data = 'edit_game')) 
-        markup.add(InlineKeyboardButton('Добавить участников',callback_data = 'add_players')) 
         
     return markup
 
@@ -47,25 +53,59 @@ def gen_markup(db, key = None):
 @bot.message_handler(commands=['start'])
 def command_start(m):
     ch_id = str(m.chat.id)
+    msg_id = m.message_id
     
     db = loadDB()
     users = db['players']
     
+    print("START")
     if ch_id in users:
-        if users[ch_id]["admin"]:  
+        print("IN USERS")
+        if users[ch_id]["admin"]: 
+            print("ADMIN")
             if db['game']['active']:
+                print("'game']['active'")
                 bot.send_message(chat_id = ch_id, 
-                                  text = db['game']['text'] + db['game']['text_list'], 
+                                  text = db['game']['text_list'], 
                                   reply_markup = gen_markup(db, 'show'))
+                db["game"]["players"][ch_id] = str (msg_id + 1)
+#                uploadDB(db)
             else:
+                print("'game']NOT['active'")
                 bot.send_message(chat_id = ch_id, 
                                   text = "Че надо?", 
                                   reply_markup = gen_markup(db, 'create'))
+        else:
+            print("NOT ADMIN")
+            if db['game']['active']:
+                print("'game']['active'")
+#                db["game"]["players"][ch_id] = str (msg_id + 1)
+                if ch_id in db['game']['players']:
+                    bot.send_message(chat_id = ch_id, 
+                                     text = db['game']['text_list'])
+                    db["game"]["players"][ch_id] = str (msg_id + 1)
+#                    uploadDB(db)
+                else:
+                    bot.send_message(chat_id = ch_id, 
+                                     text = db['game']['text_list'],
+                                     reply_markup = gen_markup(db, 'new_player'))
+                    
+#                    uploadDB(db)
+            else:
+                print("'game']NOT['active'")
+                bot.send_message(chat_id = ch_id, 
+                                 text = "Жди уведомление, пока что нет активных игр")
     else:
         bot.send_message(ch_id, "Привет, у тебя должен быть секретный код для того что б пользоваться этим ботом\nПо всем вопросам пиши в группу ФБ https://www.facebook.com/groups/fkalcash/")
+        bot.send_message(383621032, f'Кто-то стучится -> {m.chat.first_name} @{m.chat.username}')
+        
+        
+    print (db["game"]["players"])
+    uploadDB(db)
+    
+    
 
-
-handle = ['post','reg', 'shuffle']   
+handle = ['post','reg', 'shuffle', 'del']   
 @bot.callback_query_handler(func=lambda call: call.data in handle)
 def callback_func_p(call):      
     ch_id = str(call.message.chat.id)
@@ -76,40 +116,67 @@ def callback_func_p(call):
     game = db['game']
     
     if call.data == "post":
+#        bot.delete_message(ch_id,msg_id)
         game['active'] = True
+        
         for n in players:
-            bot.send_message(chat_id = n, 
-                             text = game['text'],
-                             reply_markup = gen_markup(db, 'new_player'))
-            
+            print(f'{n}\n{ch_id}\n{game["players"][ch_id]}\n')#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            if n == ch_id:
+#                bot.edit_message_text(text = game['text_list'],  
+#                                      chat_id = ch_id, 
+#                                      message_id = game['players'][ch_id],
+#                                      reply_markup = gen_markup(db, 'show'))
+                bot.edit_message_reply_markup(chat_id=ch_id, 
+                                              message_id=msg_id,
+                                              reply_markup=gen_markup(db, 'show'))
+                
+                db["game"]["players"][ch_id] = msg_id
+                
+            else:
+                bot.send_message(chat_id = n, 
+                                 text = game['text_list'],
+                                 reply_markup = gen_markup(db, 'new_player'))
+                
     elif call.data == "reg":
         game["players"].setdefault(ch_id, msg_id)
         
-        players_list = '\nЗаписались на игру:'
-        i = 1
-        for index,player in enumerate(game["players"],1):
-            name = players[player]["fname"]
-            players_list += f'\n{index}) {name}'
-            i = index
+        game['list'].append(players[ch_id]["fname"])
+        print ("'reg' <<<<<<<<<<<<<<<<<<<<<<<")
+        game['text_list'] = form_list(game,players) 
         
-        dop = game["players"]['added']
-        if dop:
-            players_list += '\n+ мизантропы'
-            for index, player in enumerate(dop, i):
-                players_list += f'\n{index}) {player}'
-                
-        game['text_list'] = players_list 
+        for player_id, msg_id in game["players"].items():
+            if players[player_id]["admin"]:
+                bot.edit_message_text(text = game['text_list'],  
+                                      chat_id = player_id, 
+                                      message_id = msg_id,
+                                      reply_markup = gen_markup(db, 'show'))
+            else:
+                bot.edit_message_text(text = game['text_list'],  
+                                      chat_id = player_id, 
+                                      message_id = msg_id)#,reply_markup = gen_markup(db, 'deny')
         
-        for player_id, msg_id in game["players"]:
-            
-            bot.edit_message_text(text = game['text_list'],  
-                                  chat_id = player_id, 
-                                  message_id = msg_id)#,reply_markup = gen_markup(db, 'deny')
+        db['game'] = game
         
-        db['game'] = game["players"]
-        db['game'] = game['text_list']
     
     elif call.data == "shuffle":
+        text = form_teams()
+        game['active'] = False
+        for player_id, msg_id in game["players"].items():
+            bot.edit_message_text(text = text,  
+                                  chat_id = player_id, 
+                                  message_id = msg_id)
+    
+    
+    elif call.data == "del":
+        text = f'*ИГРА ОТМЕНЕНА!!!!\n*{game["text"]}\n\n'
+        game['active'] = False
+        for player_id, msg_id in game["players"].items():
+            bot.edit_message_text(text = text,  
+                                  chat_id = player_id, 
+                                  message_id = msg_id, 
+                                  parse_mode = "Markdown")
+            
+#        game = db["dummyGame"]
         
     uploadDB(db)
     
@@ -131,79 +198,113 @@ def callback_func(call):
     s = bot.send_message(ch_id, msg)
     bot.register_next_step_handler(s, set_game, call.data, msg_id)
     
+    print("callback_query_handler<<<<'edit_game','spam','add'<<<<<<<<<<<<<",msg_id)
       
-def set_game (m, key,msg_id):  
+def set_game (m, key,msg_id): 
+    
     ch_id = str (m.chat.id)
+
     
     
-    bot.delete_message(ch_id,m.message_id)
-    bot.delete_message(ch_id,m.message_id - 1) 
 #    bot.delete_message(ch_id,msg_id) 
     
     db = loadDB()
+    game = db['game']
     players = db['players']
-    
-    if key == 'spam': 
-        text = m.text
+
+    if key == 'spam':
+        
+#        bot.delete_message(ch_id,msg_id) 
+        
+#        text = m.text
         for n in players:
-            bot.send_message(chat_id = n, 
-                             text = text) 
-            
-        command_start(m)
-        
+            bot.forward_message(chat_id = n,
+                                from_chat_id = ch_id,
+                                message_id = m.message_id)
+#            bot.send_message(chat_id = n, 
+#                             text = text)             
+#        command_start(m)
+    
+    
+    
     elif key == 'add':
-        db['game']['added'].append(m.text)
+        game['added'].append(m.text)
+        game['list'].append(m.text)
+        print ("'add' <<<<<<<<<<<<<<<<<<<<<<<")
+        game['text_list'] = form_list(game,players) 
         
+        for player_id, msg_id in game["players"].items():
+            if players[player_id]["admin"]:
+                bot.edit_message_text(text = game['text_list'],  
+                                      chat_id = player_id, 
+                                      message_id = msg_id,
+                                      reply_markup = gen_markup(db, 'show'))
+            else:
+                bot.edit_message_text(text = game['text_list'],  
+                                      chat_id = player_id, 
+                                      message_id = msg_id)      
+                
+#        bot.delete_message(ch_id,m.message_id)
+#        bot.delete_message(ch_id,m.message_id - 1)    
         
     elif key == 'edit_game':
-        if db['game']['active']:
-            game = db["game"]
-        else:
-            game = db["dummyGame"]
-            
+              
+        game = {
+              "players":{},
+              "active": False,
+              "text_list":"",
+              "list":[],
+              "text": "Болванка на игру",
+              "added":[]
+              }
+        
         game['text'] = m.text
+        
+        game['list'].append(players[ch_id]["fname"])
+        print ("'edit_game' <<<<<<<<<<<<<<<<<<<<<<<")
+        game["players"].setdefault(ch_id, msg_id)
+        
+        game['text_list'] = form_list(game,players)
+        
         db['game'] = game
         
-        bot.edit_message_text(text = game['game_text'],  
+#        print(f'{n}\n{ch_id}\n{game["players"][ch_id]}\n')#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        
+        bot.edit_message_text(text = game['text_list'],  
                               chat_id = ch_id, 
                               message_id = msg_id,
                               reply_markup = gen_markup(db, 'post'))
-            
+        
+    bot.delete_message(ch_id,m.message_id)
+    bot.delete_message(ch_id,m.message_id - 1)    
+     
     uploadDB(db)  
 
 
-def form_teams():
-    
-    team_list = []
+def form_teams():    
     
     db = loadDB()
-    players = db['players']
-    dop = db["added"]
-    
-    for n in players:
-        team_list.append(users_dict[(n)])
-    if len(added_players) != 0:
-        for n in added_players:
-            team_list.append(n)
+    players = db['game']['list']
+    print ("form_teams() <<<<<<<<<<<<<<<<<<<<<<<")
         
-    random.shuffle(team_list)
-    members = len (team_list)
+    random.shuffle(players)
+    members = len (players)
     
     teamA = teamB = teamC = []
     
     if members < 13:
-        teamA = team_list[0::2]
-        teamB = team_list[1::2]
+        teamA = players[0::2]
+        teamB = players[1::2]
         teams = {'\nTeam "RED"': teamA ,'\nTeam "BLUE"': teamB} 
     elif members >= 13:
-        teamA = team_list[0::3]
-        teamB = team_list[1::3]
-        teamC = team_list[2::3]
+        teamA = players[0::3]
+        teamB = players[1::3]
+        teamC = players[2::3]
         teams = {'\nTeam "RED"': teamA ,'\nTeam "BLUE"': teamB,'\n\nTeam "NEUTRAL"': teamC} 
 #    else :
 #        return 'ДЕЛИТЕСЬ вручную'   
     
-    text =  game_text +  'Составы на эту игру:\n'
+    text =  db['game']['text'] +  '\nСоставы на эту игру:\n'
   
     
     for t in teams:
@@ -215,5 +316,65 @@ def form_teams():
     
     return text
 
+def form_list(game,players):
     
+    players_list = f'{game["text"]}\n\nЗаписались на игру:'
+    i = 1
+    for index,player in enumerate(game["players"],1):
+        name = players[player]["fname"]
+        players_list += f'\n{index}) {name}'
+        i = index
+        
+    i += 1
+    dop = game['added']
+    if dop:
+        players_list += '\n\n+ мизантропы'
+        for index, player in enumerate(dop, i):
+            players_list += f'\n{index}) {player}'
+            
+    return players_list
+
+
+
+
+@bot.message_handler(commands=['IwantToPlayFootball'])
+def command_addplayer(m):
+    ch_id = str(m.chat.id)
+    
+    db = loadDB()
+    players = db['players']
+    
+    if ch_id not in players:  # if user hasn't used the "/start" command yet:
+        
+        dummyUsr = {
+                "fname": None,
+                "lname": None,
+                "uname": None,
+                "admin": False
+              }
+                
+        if m.chat.first_name is not None:
+            dummyUsr['fname'] = m.chat.first_name 
+        if m.chat.last_name is not None:
+            dummyUsr['lname'] = m.chat.last_name 
+            dummyUsr['fname'] += ' ' + m.chat.last_name 
+        if m.chat.username is not None:
+            dummyUsr['uname'] = m.chat.username 
+        
+        players[ch_id] = dummyUsr
+        uploadDB(db)
+        command_start(m)
+        bot.send_message(383621032, f'У нас новый игрок -> {dummyUsr["fname"]}')
+        
+    else:
+        bot.send_message(cid, "Хмм...второй раз это ни к чему )")
+        command_start(m)
+            
+
+db = loadDB()
+db["crashed"] = db["crashed"] + 1
+uploadDB(db)
+
+bot.send_message(383621032, f'Crashed {db["crashed"]}й раз')
+
 bot.polling()

@@ -1,14 +1,14 @@
 {
   "players": {
     "383621032":{
-        "fname": "Alex",
+        "fname": "Alex Kucherenko",
         "lname": "Kucherenko",
         "uname": "alex_under_kraft",
         "phone": null,
         "admin": true
       },
     "247931994":{
-        "fname": "Alex",
+        "fname": "Alex Hryshman",
         "lname": "Hryshman",
         "uname": "Hryshman",
         "phone": null,
@@ -22,21 +22,21 @@
         "admin": false
       }, 
     "364089346":{
-        "fname": "Dima",
+        "fname": "Dima Upps",
         "lname": "Upps",
         "uname": "kosmas1310",
         "phone": null,
         "admin": false
       },
     "306894487":{
-        "fname": "Aleksandr",
+        "fname": "Aleksandr Tsybin",
         "lname": "Tsybin",
         "uname": null,
         "phone": null,
         "admin": false
       },
     "364848458":{
-        "fname": "Oleksandr",
+        "fname": "Oleksandr Bondarets",
         "lname": "Bondarets",
         "uname": "BondiniAlex",
         "phone": null,
@@ -71,21 +71,21 @@
         "admin": false
       },
     "476928592":{
-        "fname": "Aleksey",
+        "fname": "Aleksey Tsybin",
         "lname": "Tsybin",
         "uname": null,
         "phone": null,
         "admin": false
       },
     "588465270": {
-        "fname": "Taras",
+        "fname": "Taras Degodyuk",
         "lname": "Degodyuk",
         "uname": null,
         "phone": null,
         "admin": false
       },
     "815823902":{
-        "fname": "Dimitri",
+        "fname": "Dimitri Bogachuk",
         "lname": "Bogachuk",
         "uname": null,
         "phone": null,
@@ -99,21 +99,21 @@
         "admin": false
       }, 
     "717333097":{
-        "fname": "Ivan",
+        "fname": "Ivan Sushytsky",
         "lname": "Sushytsky",
         "uname": null,
         "phone": null,
         "admin": false
       },
     "433918684":{
-        "fname": "Тигра",
+        "fname": "Тигра Лунная",
         "lname": "Лунная",
         "uname": null,
         "phone": null,
         "admin": false
       }, 
     "361879891":{
-        "fname": "Roman",
+        "fname": "Roman Saiko",
         "lname": "Saiko",
         "uname": "rsaiko23",
         "phone": null,
@@ -144,7 +144,7 @@
     },
     "text_list":"",
     "list":[],
-    "active": true,
+    "active": false,
     "text": "Отмечаемся на сегодня 1.09 17:00-19:00 ЖК София\n",
     "added": [
         "овсянкин",
@@ -153,18 +153,5 @@
         "someone from local bar"
       ]
   },
-  "dummyUsr": {
-    "fname": null,
-    "lname": null,
-    "uname": null,
-    "phone": null,
-    "admin": false
-  },
-  "dummyGame":{
-      "players":{},
-      "active": false,
-      "list":"",
-      "text": "Болванка на игру",
-      "added":[]
-  }
+  "crashed": 0
 }

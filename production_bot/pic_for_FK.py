@@ -22,8 +22,8 @@ text_color = (255,0,0)
 text = 'Фамилия Имя Отчество'
 
 # загружаете фоновое изображение
-img = Image.open('blank.jpg')
-
+img = Image.new('RGB', (250, 250), (255, 255, 255))
+img.show()
 # определяете объект для рисования
 draw = ImageDraw.Draw(img)
 
