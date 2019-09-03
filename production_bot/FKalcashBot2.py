@@ -1,4 +1,4 @@
-import telebot, json, random
+import telebot, json, random, re
 
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup ,KeyboardButton, ReplyKeyboardRemove
 
@@ -19,7 +19,7 @@ def uploadDB(db):
     json.dump(db, open(data, "w+"), indent = 2, ensure_ascii=False) 
 
 
-def gen_markup(db, key = None):
+def gen_markup(db, key = None, ch_id = None):
     
     markup = InlineKeyboardMarkup()   
     
@@ -29,21 +29,23 @@ def gen_markup(db, key = None):
         
     elif key == 'post':
         markup.add(InlineKeyboardButton('Постим?',callback_data = 'post'))
-    
-#    elif key == 'admin_reg':
-##        markup.add(InlineKeyboardButton('Зарегистрироваться на игру',callback_data = 'reg'))
-#        markup.add(InlineKeyboardButton('Добавить игрока',callback_data = 'add'))
-#        markup.add(InlineKeyboardButton('Поделить на команды',callback_data = 'shuffle'))
-#        markup.add(InlineKeyboardButton('Отменить игру',callback_data = 'del'))
-#        markup.add(InlineKeyboardButton('Рассылка',callback_data = 'spam'))
            
     elif key == 'show':
+        
+        if ch_id not in db['game']["players"]:
+            markup.add(InlineKeyboardButton('Зарегистрироваться на игру',callback_data = 'reg'))
+            
         markup.add(InlineKeyboardButton('Добавить игрока',callback_data = 'add'))
         markup.add(InlineKeyboardButton('Поделить на команды',callback_data = 'shuffle'))
         markup.add(InlineKeyboardButton('Отменить игру',callback_data = 'del'))
         markup.add(InlineKeyboardButton('Рассылка',callback_data = 'spam'))
     
-    
+    elif key == 'statistics':
+       for k in db['game']["players"]:
+            markup.add(InlineKeyboardButton(f"Гол: {db['players'][k]['fname']}", callback_data = k))
+        
+       markup.add(InlineKeyboardButton('Конец игры',callback_data = 'end'))
+       
     elif key == 'new_player':
         markup.add(InlineKeyboardButton('Зарегистрироваться на игру',callback_data = 'reg'))
         
@@ -65,10 +67,12 @@ def command_start(m):
             print("ADMIN")
             if db['game']['active']:
                 print("'game']['active'")
+                
                 bot.send_message(chat_id = ch_id, 
                                   text = db['game']['text_list'], 
-                                  reply_markup = gen_markup(db, 'show'))
-                db["game"]["players"][ch_id] = str (msg_id + 1)
+                                  reply_markup = gen_markup(db, 'show',ch_id))
+                
+#                db["game"]["players"][ch_id] = str (msg_id + 1)
 #                uploadDB(db)
             else:
                 print("'game']NOT['active'")
@@ -103,9 +107,18 @@ def command_start(m):
     print (db["game"]["players"])
     uploadDB(db)
     
+@bot.callback_query_handler(func=lambda call: re.match('\d{9}', call.data))
+def get_game_stat(call):
+    who = call.data
+    db = loadDB()
+    players = db['game']['players']
     
-
-handle = ['post','reg', 'shuffle', 'del']   
+    players[who] += 1
+    
+    uploadDB(db)
+    
+    
+handle = ['post','reg', 'shuffle', 'del', 'end']   
 @bot.callback_query_handler(func=lambda call: call.data in handle)
 def callback_func_p(call):      
     ch_id = str(call.message.chat.id)
@@ -120,18 +133,11 @@ def callback_func_p(call):
         game['active'] = True
         
         for n in players:
-            print(f'{n}\n{ch_id}\n{game["players"][ch_id]}\n')#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-            if n == ch_id:
-#                bot.edit_message_text(text = game['text_list'],  
-#                                      chat_id = ch_id, 
-#                                      message_id = game['players'][ch_id],
-#                                      reply_markup = gen_markup(db, 'show'))
+            
+            if players[n]["admin"]:
                 bot.edit_message_reply_markup(chat_id=ch_id, 
                                               message_id=msg_id,
-                                              reply_markup=gen_markup(db, 'show'))
-                
-                db["game"]["players"][ch_id] = msg_id
-                
+                                              reply_markup=gen_markup(db, 'show', ch_id))
             else:
                 bot.send_message(chat_id = n, 
                                  text = game['text_list'],
@@ -149,7 +155,7 @@ def callback_func_p(call):
                 bot.edit_message_text(text = game['text_list'],  
                                       chat_id = player_id, 
                                       message_id = msg_id,
-                                      reply_markup = gen_markup(db, 'show'))
+                                      reply_markup = gen_markup(db, 'show',ch_id))
             else:
                 bot.edit_message_text(text = game['text_list'],  
                                       chat_id = player_id, 
@@ -159,14 +165,40 @@ def callback_func_p(call):
         
     
     elif call.data == "shuffle":
-        text = form_teams()
+        game["text_list"] = form_teams()
         game['active'] = False
         for player_id, msg_id in game["players"].items():
-            bot.edit_message_text(text = text,  
-                                  chat_id = player_id, 
-                                  message_id = msg_id)
+            if players[player_id]["admin"]:
+                bot.edit_message_text(text = game["text_list"],  
+                                      chat_id = player_id, 
+                                      message_id = msg_id,
+                                      reply_markup = gen_markup(db, 'statistics'))
+            else:
+                bot.edit_message_text(text = game["text_list"],  
+                                      chat_id = player_id, 
+                                      message_id = msg_id)
+            
+            game["players"][player_id] = 0
+            
     
-    
+    elif call.data == "end":
+#        text = form_scores(db)
+        results = "В этой игре отметились забив:"
+        bot.edit_message_reply_markup(chat_id=ch_id, 
+                                      message_id=msg_id)
+        
+        sorted_x = sorted(game["players"].items(), key = lambda kv: -kv[1])
+
+        for player_id, scores in sorted_x:
+            if scores > 0:
+                results += f"\n{players[player_id]['fname']} - {scores} мячей"
+                players[player_id]['scors'] += scores
+        
+        for player_id in game["players"]:
+            bot.send_message(chat_id = player_id, 
+                             text = results)
+            
+            
     elif call.data == "del":
         text = f'*ИГРА ОТМЕНЕНА!!!!\n*{game["text"]}\n\n'
         game['active'] = False
@@ -179,6 +211,9 @@ def callback_func_p(call):
 #        game = db["dummyGame"]
         
     uploadDB(db)
+    print ("END")
+    
+    
     
 addings = ['edit_game','spam','add']
 @bot.callback_query_handler(func=lambda call: call.data in addings)  
@@ -238,7 +273,7 @@ def set_game (m, key,msg_id):
                 bot.edit_message_text(text = game['text_list'],  
                                       chat_id = player_id, 
                                       message_id = msg_id,
-                                      reply_markup = gen_markup(db, 'show'))
+                                      reply_markup = gen_markup(db, 'show',ch_id))
             else:
                 bot.edit_message_text(text = game['text_list'],  
                                       chat_id = player_id, 
@@ -260,15 +295,9 @@ def set_game (m, key,msg_id):
         
         game['text'] = m.text
         
-        game['list'].append(players[ch_id]["fname"])
-        print ("'edit_game' <<<<<<<<<<<<<<<<<<<<<<<")
-        game["players"].setdefault(ch_id, msg_id)
-        
-        game['text_list'] = form_list(game,players)
+        game['text_list'] = game['text']
         
         db['game'] = game
-        
-#        print(f'{n}\n{ch_id}\n{game["players"][ch_id]}\n')#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         
         bot.edit_message_text(text = game['text_list'],  
                               chat_id = ch_id, 
@@ -313,6 +342,8 @@ def form_teams():
         for players in teams[t]:
             i +=1
             text += f'{i}) {players}\n'
+        
+    uploadDB(db)
     
     return text
 
@@ -334,8 +365,16 @@ def form_list(game,players):
             
     return players_list
 
-
-
+#def form_scores(db):
+#    
+#    results = "В этой игре отметились:"
+#    
+#    for player in db['game']['players']:
+#        if db['game']['players'][player] > 0 :
+#            results += f"\n{db['players'][player]['fname'] - {db['game']['players'][player]} мячей"
+#            db['players'][player]['scors'] += db['game']['players'][player]
+#            
+#    return results
 
 @bot.message_handler(commands=['IwantToPlayFootball'])
 def command_addplayer(m):
@@ -377,4 +416,4 @@ uploadDB(db)
 
 bot.send_message(383621032, f'Crashed {db["crashed"]}й раз')
 
-bot.polling()
+bot.polling( interval=2, timeout=40)

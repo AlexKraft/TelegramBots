@@ -4,20 +4,30 @@
       "fname": "Alex Kucherenko",
       "lname": "Kucherenko",
       "uname": "alex_under_kraft",
-      "admin": false
+      "admin": true,
+      "scors": 9,
+      "ingames": 0
+    },
+    "476928592": {
+      "fname": "Aleksey Tsybin",
+      "lname": "Tsybin",
+      "uname": null,
+      "admin": false,
+      "scors": 8,
+      "ingames": 0
     }
   },
   "game": {
     "players": {
-      "383621032": "3251"
+      "476928592": "3442"
     },
-    "active": false,
-    "text_list": "20.08\n\nГ‡Г ГЇГЁГ±Г Г«ГЁГ±Гј Г­Г  ГЁГЈГ°Гі:\n1) Alex Kucherenko",
+    "active": true,
+    "text_list": "агагага\n\nЗаписались на игру:\n1) Aleksey Tsybin",
     "list": [
-      "Alex Kucherenko"
+      "Aleksey Tsybin"
     ],
-    "text": "20.08",
+    "text": "агагага",
     "added": []
   },
-  "crashed": 1
+  "crashed": 25
 }
