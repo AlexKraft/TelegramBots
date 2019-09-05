@@ -5,7 +5,7 @@
       "lname": "Kucherenko",
       "uname": "alex_under_kraft",
       "admin": true,
-      "scors": 9,
+      "scors": 12,
       "ingames": 0
     },
     "476928592": {
@@ -13,21 +13,21 @@
       "lname": "Tsybin",
       "uname": null,
       "admin": false,
-      "scors": 8,
+      "scors": 14,
       "ingames": 0
     }
   },
   "game": {
-    "players": {
-      "476928592": "3442"
-    },
-    "active": true,
-    "text_list": "агагага\n\nЗаписались на игру:\n1) Aleksey Tsybin",
-    "list": [
-      "Aleksey Tsybin"
-    ],
-    "text": "агагага",
+    "players": {},
+    "active": false,
+    "text_list": "Р‘РѕР»РІР°РЅРєР° РЅР° РёРіСЂСѓ",
+    "list": [],
+    "text": "Р‘РѕР»РІР°РЅРєР° РЅР° РёРіСЂСѓ",
     "added": []
   },
-  "crashed": 25
+  "crashed": 48,
+  "admins": [
+    "476928592",
+    "383621032"
+  ]
 }

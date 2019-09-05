@@ -1,5 +1,4 @@
-import telebot, json, random, re
-
+import telebot, json, random, re 
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup ,KeyboardButton, ReplyKeyboardRemove
 
 
@@ -10,48 +9,89 @@ bot = telebot.TeleBot(API_TOKEN)
 
 data = 'db.json'
 
+'''
+     ф-ции загрузки и выгрузки из файла базы данных 
+     
+     так как обращение в базу происходит в каждой из функций отделно, то
+     даже при запущенном боте можно менять файл 'db.json' 
+     - добавлять/удалять ["players"]
+     - добавлять/удалять ["admins"]
+     - вносить изменения в ["game"]
+     
+'''
 def loadDB():
-    db = json.load(open(data, "r"))
+    with open(data, 'r', encoding='utf-8') as f:    
+        db = json.load(f)
     return db
 
 def uploadDB(db):
-    print("DB UPLOADED!!!!!!!!!!!!!!!!")
-    json.dump(db, open(data, "w+"), indent = 2, ensure_ascii=False) 
+    with open(data, 'w+', encoding='utf-8') as f:
+        json.dump(db, f, indent = 2, ensure_ascii=False) 
 
-
+'''
+    маркапы с кнопками:
+        
+        admin_buttons - если есть запощеная игра то кнопки:
+                            add,shuffle,del и spam
+                        если нет игры то:
+                            edit_game, post и spam
+                            
+        new_player - кнопки для не админов. если есть игра :  reg      
+                                            если нет, то None
+        
+        statistics - берет участников из db["game"]["players"] и делает кнопку
+                    на каждого для фиксации забитых мячей. 
+                    эта фунция использует db["game"]["players"] где после shuffle
+                    у каждого игрока хранится уже не msg_id, а число забитых мячей.
+                    так как после shufle редактирование игрового сообщения не требуется
+                    
+''' 
 def gen_markup(db, key = None, ch_id = None):
     
     markup = InlineKeyboardMarkup()   
-    
-    if key == 'create':
-        markup.add(InlineKeyboardButton('Создать игру',callback_data = 'edit_game'))        
-        markup.add(InlineKeyboardButton('Рассылка',callback_data = 'spam'))       
-        
-    elif key == 'post':
-        markup.add(InlineKeyboardButton('Постим?',callback_data = 'post'))
-           
-    elif key == 'show':
-        
-        if ch_id not in db['game']["players"]:
-            markup.add(InlineKeyboardButton('Зарегистрироваться на игру',callback_data = 'reg'))
+   
+    if key == 'admin_buttons':
+        if not db['game']['active']:
+            markup.add(InlineKeyboardButton('Редактировать пост',callback_data = 'edit_game')) 
+            markup.add(InlineKeyboardButton('Постим?',callback_data = 'post'))
+        else:
+            markup.add(InlineKeyboardButton('Добавить игрока',callback_data = 'add'))
+            markup.add(InlineKeyboardButton('Поделить на команды',callback_data = 'shuffle'))
+            markup.add(InlineKeyboardButton('Отменить игру',callback_data = 'del'))
             
-        markup.add(InlineKeyboardButton('Добавить игрока',callback_data = 'add'))
-        markup.add(InlineKeyboardButton('Поделить на команды',callback_data = 'shuffle'))
-        markup.add(InlineKeyboardButton('Отменить игру',callback_data = 'del'))
         markup.add(InlineKeyboardButton('Рассылка',callback_data = 'spam'))
-    
+      
+    elif key == 'new_player':
+        
+        if not db['game']['active']:
+            return None
+        elif ch_id not in db["game"]["players"]:
+            markup.add(InlineKeyboardButton('Зарегистрироваться на игру',callback_data = 'reg'))
+        else:
+            return None
+        
     elif key == 'statistics':
        for k in db['game']["players"]:
             markup.add(InlineKeyboardButton(f"Гол: {db['players'][k]['fname']}", callback_data = k))
         
        markup.add(InlineKeyboardButton('Конец игры',callback_data = 'end'))
-       
-    elif key == 'new_player':
-        markup.add(InlineKeyboardButton('Зарегистрироваться на игру',callback_data = 'reg'))
-        
+     
     return markup
 
+        
+
+'''
+    проверки:
+        1) есть ли такой ID в списке общем db['players']
+        2) админ или нет в db["admins"]
+        3) есть игра или нет по db['game']['active']
     
+    админам в ответ отправляет свой набор кнопок в gen_markup
+    
+Пара важных моментов:
+    если админ есть в db["game"]['players'] то обновляется msg_id по которому 
+    ему в дальнейшем будут приходить все изменения 
+''' 
 @bot.message_handler(commands=['start'])
 def command_start(m):
     ch_id = str(m.chat.id)
@@ -60,63 +100,60 @@ def command_start(m):
     db = loadDB()
     users = db['players']
     
-    print("START")
     if ch_id in users:
-        print("IN USERS")
-        if users[ch_id]["admin"]: 
-            print("ADMIN")
-            if db['game']['active']:
-                print("'game']['active'")
-                
-                bot.send_message(chat_id = ch_id, 
-                                  text = db['game']['text_list'], 
-                                  reply_markup = gen_markup(db, 'show',ch_id))
-                
-#                db["game"]["players"][ch_id] = str (msg_id + 1)
-#                uploadDB(db)
-            else:
-                print("'game']NOT['active'")
-                bot.send_message(chat_id = ch_id, 
-                                  text = "Че надо?", 
-                                  reply_markup = gen_markup(db, 'create'))
+        
+        if ch_id in db["admins"]:
+            markup = gen_markup(db, 'admin_buttons',ch_id)
+            msg = db['game']['text_list']
+            
+            if db['game']['active'] and ch_id in db['game']['players']:
+                print ("NEW MESSAGE ID <<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+                db['game']['players'][ch_id] = msg_id + 1 
         else:
-            print("NOT ADMIN")
-            if db['game']['active']:
-                print("'game']['active'")
-#                db["game"]["players"][ch_id] = str (msg_id + 1)
-                if ch_id in db['game']['players']:
-                    bot.send_message(chat_id = ch_id, 
-                                     text = db['game']['text_list'])
-                    db["game"]["players"][ch_id] = str (msg_id + 1)
-#                    uploadDB(db)
-                else:
-                    bot.send_message(chat_id = ch_id, 
-                                     text = db['game']['text_list'],
-                                     reply_markup = gen_markup(db, 'new_player'))
-                    
-#                    uploadDB(db)
-            else:
-                print("'game']NOT['active'")
-                bot.send_message(chat_id = ch_id, 
-                                 text = "Жди уведомление, пока что нет активных игр")
+            markup = gen_markup(db, 'new_player')
+            msg = db['game']['text_list'] if db['game']['active'] else "пока что нет активных игр"
+            
     else:
-        bot.send_message(ch_id, "Привет, у тебя должен быть секретный код для того что б пользоваться этим ботом\nПо всем вопросам пиши в группу ФБ https://www.facebook.com/groups/fkalcash/")
+        msg = "Привет, у тебя должен быть секретный код для того что б пользоваться этим ботом\nПо всем вопросам пиши в группу ФБ https://www.facebook.com/groups/fkalcash/"
+        markup = None
         bot.send_message(383621032, f'Кто-то стучится -> {m.chat.first_name} @{m.chat.username}')
         
-        
-    print (db["game"]["players"])
+    bot.send_message (chat_id = ch_id, 
+                      text = msg, 
+                      reply_markup = markup)
+
     uploadDB(db)
-    
+
+
+'''
+    сюда мы попадаем после того как поделились на команды и админам вывелись кнопочки 
+    с именами игроков по нажатию на которые call.data содержит ID игрока
+''' 
 @bot.callback_query_handler(func=lambda call: re.match('\d{9}', call.data))
 def get_game_stat(call):
     who = call.data
     db = loadDB()
-    players = db['game']['players']
-    
-    players[who] += 1
-    
+    players = db['game']['players']    
+    players[who] += 1    
     uploadDB(db)
+
+'''
+    есть два типа хэндлеров. Первые просто в тупую обрабатываю нажатия кнопок,
+    вторые будут дальше.
     
+    Здесь обрабатывается нажатие на: ['post','reg', 'shuffle', 'del', 'end']
+    
+    post    - делает рассылку новой игры всем из списка "players"
+    reg     - проверяет есть ли игра и если да вносит ID в db["game"]["players"] и сохраняет
+            адрес сообщения что б потом его редактировать
+    shuffle - вызывает отдельную ф-цию которая берет список и тасует на команды +
+            обновляет всем сообщение из db["game"]["players"]
+    del     - отмена игры, редактирование сообщения с игрой у всех 
+            кто в списке db["game"]["players"], очистка db["game"]
+    end     - кнопка 'Конец игры' после того как поделило на команды
+            обновляет db["players"] в соответствии с забитыми голами и делает
+            те же процедуры что и del
+'''    
     
 handle = ['post','reg', 'shuffle', 'del', 'end']   
 @bot.callback_query_handler(func=lambda call: call.data in handle)
@@ -127,48 +164,57 @@ def callback_func_p(call):
     db = loadDB()
     players = db['players'] 
     game = db['game']
-    
+
+
+#                                                                >>>>>>>>>  POST
+   
     if call.data == "post":
-#        bot.delete_message(ch_id,msg_id)
         game['active'] = True
+        bot.delete_message(ch_id,msg_id)
         
-        for n in players:
-            
-            if players[n]["admin"]:
-                bot.edit_message_reply_markup(chat_id=ch_id, 
-                                              message_id=msg_id,
-                                              reply_markup=gen_markup(db, 'show', ch_id))
-            else:
-                bot.send_message(chat_id = n, 
-                                 text = game['text_list'],
-                                 reply_markup = gen_markup(db, 'new_player'))
-                
+        for n in players:            
+#            if n in db["admin"]::
+#                bot.edit_message_reply_markup(chat_id=ch_id, 
+#                                              message_id=msg_id,
+#                                              reply_markup=gen_markup(db, 'show', ch_id))
+#            else:
+            bot.send_message(chat_id = n, 
+                             text = game['text_list'],
+                             reply_markup = gen_markup(db, 'new_player', n))
+#'''
+##                                                                 >>>>>>>>>  REG
+#'''                     
     elif call.data == "reg":
-        game["players"].setdefault(ch_id, msg_id)
-        
-        game['list'].append(players[ch_id]["fname"])
-        print ("'reg' <<<<<<<<<<<<<<<<<<<<<<<")
-        game['text_list'] = form_list(game,players) 
-        
-        for player_id, msg_id in game["players"].items():
-            if players[player_id]["admin"]:
+        if game["active"]:
+            game["players"].setdefault(ch_id, msg_id)
+            
+            game['list'].append(players[ch_id]["fname"])
+            print ("'reg' <<<<<<<<<<<<<<<<<<<<<<<")
+            game['text_list'] = form_list(game,players) 
+            
+            for player_id, msg_id in game["players"].items():
+    #            if players[player_id]["admin"]:
+    #                bot.edit_message_text(text = game['text_list'],  
+    #                                      chat_id = player_id, 
+    #                                      message_id = msg_id,
+    #                                      reply_markup = gen_markup(db, 'show',ch_id))
+    #            else:
                 bot.edit_message_text(text = game['text_list'],  
                                       chat_id = player_id, 
-                                      message_id = msg_id,
-                                      reply_markup = gen_markup(db, 'show',ch_id))
-            else:
-                bot.edit_message_text(text = game['text_list'],  
-                                      chat_id = player_id, 
-                                      message_id = msg_id)#,reply_markup = gen_markup(db, 'deny')
-        
-        db['game'] = game
-        
-    
+                                      message_id = msg_id)
+            
+            db['game'] = game
+        else:
+            bot.delete_message(ch_id,call.message.message_id)
+            command_start(call.message)
+#'''
+#                                                              >>>>>>>>>  SHUFLE
+#'''       
     elif call.data == "shuffle":
         game["text_list"] = form_teams()
         game['active'] = False
         for player_id, msg_id in game["players"].items():
-            if players[player_id]["admin"]:
+            if ch_id in db["admins"]:
                 bot.edit_message_text(text = game["text_list"],  
                                       chat_id = player_id, 
                                       message_id = msg_id,
@@ -180,7 +226,9 @@ def callback_func_p(call):
             
             game["players"][player_id] = 0
             
-    
+#'''
+#                                                                >>>>>>>>>  END
+#'''       
     elif call.data == "end":
 #        text = form_scores(db)
         results = "В этой игре отметились забив:"
@@ -198,7 +246,17 @@ def callback_func_p(call):
             bot.send_message(chat_id = player_id, 
                              text = results)
             
-            
+        db["game"] = {
+                      "players":{},
+                      "active": False,
+                      "text_list":"Болванка на игру",
+                      "list":[],
+                      "text": "Болванка на игру",
+                      "added":[]
+                      }    
+#'''
+#                                                               >>>>>>>>>  DELETE
+#'''               
     elif call.data == "del":
         text = f'*ИГРА ОТМЕНЕНА!!!!\n*{game["text"]}\n\n'
         game['active'] = False
@@ -208,13 +266,34 @@ def callback_func_p(call):
                                   message_id = msg_id, 
                                   parse_mode = "Markdown")
             
-#        game = db["dummyGame"]
+        db["game"] = {
+                  "players":{},
+                  "active": False,
+                  "text_list":"Болванка на игру",
+                  "list":[],
+                  "text": "Болванка на игру",
+                  "added":[]
+                  }
         
     uploadDB(db)
-    print ("END")
+#    print ("END")
     
     
+'''
+    вторые выводят сообщение с текстом. и ставят спец функцию set_game на 
+    отработку следующего сообщения. Т.е. следующее сообщение, вне зависимости
+    от его содержания будет обработано в функции set_game
     
+    
+    Здесь обрабатывается нажатие на: ['edit_game','spam','add']
+    
+    обработчик просит в сообщении скинуть нужный текст у пользователя 
+    
+    edit_game    - текст для сообщения об игре   
+    spam    - любой текст который разошлется всем   
+    add     - Имя игрока которого надо записать на игру
+    
+'''      
 addings = ['edit_game','spam','add']
 @bot.callback_query_handler(func=lambda call: call.data in addings)  
 def callback_func(call):    
@@ -233,35 +312,35 @@ def callback_func(call):
     s = bot.send_message(ch_id, msg)
     bot.register_next_step_handler(s, set_game, call.data, msg_id)
     
-    print("callback_query_handler<<<<'edit_game','spam','add'<<<<<<<<<<<<<",msg_id)
+'''
+    В ответ на сообщение из предыдущей функции 
+    
+    spam    - форвардит сообщение от админа всем в db["players"] 
+    add     - добавляет имя в db["game"]["added"] и db["game"]["list"],
+            редактирует текст со списком игроков db["game"]["text_list"]
+            и редактирует сообщение у всех кто подписался на игру db["game"]["players"]
+            
+    edit_game    - очищает db["game"] и записыват текст пришедший в 
+                db["game"]["text"] и ["text_list"]
       
+'''     
 def set_game (m, key,msg_id): 
-    
     ch_id = str (m.chat.id)
-
-    
-    
-#    bot.delete_message(ch_id,msg_id) 
     
     db = loadDB()
     game = db['game']
     players = db['players']
-
+#'''
+#                                                                >>>>>>>>>  SPAM
+#'''   
     if key == 'spam':
-        
-#        bot.delete_message(ch_id,msg_id) 
-        
-#        text = m.text
         for n in players:
             bot.forward_message(chat_id = n,
                                 from_chat_id = ch_id,
                                 message_id = m.message_id)
-#            bot.send_message(chat_id = n, 
-#                             text = text)             
-#        command_start(m)
-    
-    
-    
+#'''
+#                                                                >>>>>>>>>  ADD
+#'''   
     elif key == 'add':
         game['added'].append(m.text)
         game['list'].append(m.text)
@@ -269,47 +348,51 @@ def set_game (m, key,msg_id):
         game['text_list'] = form_list(game,players) 
         
         for player_id, msg_id in game["players"].items():
-            if players[player_id]["admin"]:
+            
+            if player_id in db["admins"]:
+                print ('>>>>>>>Right place')
                 bot.edit_message_text(text = game['text_list'],  
                                       chat_id = player_id, 
                                       message_id = msg_id,
-                                      reply_markup = gen_markup(db, 'show',ch_id))
+                                      reply_markup = gen_markup(db, 'admin_buttons',player_id))
             else:
                 bot.edit_message_text(text = game['text_list'],  
                                       chat_id = player_id, 
                                       message_id = msg_id)      
-                
-#        bot.delete_message(ch_id,m.message_id)
-#        bot.delete_message(ch_id,m.message_id - 1)    
-        
+#'''
+#                                                            >>>>>>>>>  NEW GAME
+#'''       
     elif key == 'edit_game':
               
         game = {
               "players":{},
               "active": False,
-              "text_list":"",
+              "text_list":"Болванка на игру",
               "list":[],
               "text": "Болванка на игру",
               "added":[]
               }
-        
-        game['text'] = m.text
-        
-        game['text_list'] = game['text']
+       
+        game['text_list'] = game['text'] = m.text
         
         db['game'] = game
         
-        bot.edit_message_text(text = game['text_list'],  
+        bot.edit_message_text(text = db['game']['text_list'],  
                               chat_id = ch_id, 
                               message_id = msg_id,
-                              reply_markup = gen_markup(db, 'post'))
+                              reply_markup = gen_markup(db, 'admin_buttons',ch_id)) #<<<<<<<<<<<<<<<
         
     bot.delete_message(ch_id,m.message_id)
     bot.delete_message(ch_id,m.message_id - 1)    
      
     uploadDB(db)  
 
-
+'''
+    вспомогательная функция по делению на команды.
+    
+    просто делает shuffle db['game']['list']
+    и оборачивает его в текст
+'''
 def form_teams():    
     
     db = loadDB()
@@ -330,9 +413,7 @@ def form_teams():
         teamB = players[1::3]
         teamC = players[2::3]
         teams = {'\nTeam "RED"': teamA ,'\nTeam "BLUE"': teamB,'\n\nTeam "NEUTRAL"': teamC} 
-#    else :
-#        return 'ДЕЛИТЕСЬ вручную'   
-    
+
     text =  db['game']['text'] +  '\nСоставы на эту игру:\n'
   
     
@@ -347,6 +428,14 @@ def form_teams():
     
     return text
 
+'''
+     вспомогательная функция для формирования списка игроков из:
+           db['game']["players"]
+         и db['game']["added"]
+         
+    результат записывают в виде текста который потом исп для редактирования 
+    сообщений у игроков из db['game']["players"]
+'''
 def form_list(game,players):
     
     players_list = f'{game["text"]}\n\nЗаписались на игру:'
@@ -365,17 +454,11 @@ def form_list(game,players):
             
     return players_list
 
-#def form_scores(db):
-#    
-#    results = "В этой игре отметились:"
-#    
-#    for player in db['game']['players']:
-#        if db['game']['players'][player] > 0 :
-#            results += f"\n{db['players'][player]['fname'] - {db['game']['players'][player]} мячей"
-#            db['players'][player]['scors'] += db['game']['players'][player]
-#            
-#    return results
 
+'''
+    добавление новых персонажей в db["players"]
+    и оповещение меня о новом игроке
+'''
 @bot.message_handler(commands=['IwantToPlayFootball'])
 def command_addplayer(m):
     ch_id = str(m.chat.id)
@@ -410,10 +493,14 @@ def command_addplayer(m):
         command_start(m)
             
 
+    
+    
+    
+    
 db = loadDB()
 db["crashed"] = db["crashed"] + 1
 uploadDB(db)
 
-bot.send_message(383621032, f'Crashed {db["crashed"]}й раз')
+#bot.send_message(383621032, f'Crashed {db["crashed"]}й раз')
 
 bot.polling( interval=2, timeout=40)
