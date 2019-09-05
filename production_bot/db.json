@@ -6,7 +6,8 @@
       "uname": "alex_under_kraft",
       "admin": true,
       "scors": 12,
-      "ingames": 0
+      "ingames": 0,
+      "m_id": 3727
     },
     "476928592": {
       "fname": "Aleksey Tsybin",
@@ -14,7 +15,8 @@
       "uname": null,
       "admin": false,
       "scors": 14,
-      "ingames": 0
+      "ingames": 0,
+      "m_id": 3728
     }
   },
   "game": {
@@ -25,7 +27,7 @@
     "text": "Болванка на игру",
     "added": []
   },
-  "crashed": 48,
+  "crashed": 52,
   "admins": [
     "476928592",
     "383621032"

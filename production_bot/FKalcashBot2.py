@@ -178,9 +178,10 @@ def callback_func_p(call):
 #                                              message_id=msg_id,
 #                                              reply_markup=gen_markup(db, 'show', ch_id))
 #            else:
-            bot.send_message(chat_id = n, 
+            r = bot.send_message(chat_id = n, 
                              text = game['text_list'],
                              reply_markup = gen_markup(db, 'new_player', n))
+            players[n]['m_id'] = r.message_id
 #'''
 ##                                                                 >>>>>>>>>  REG
 #'''                     
@@ -213,16 +214,36 @@ def callback_func_p(call):
     elif call.data == "shuffle":
         game["text_list"] = form_teams()
         game['active'] = False
-        for player_id, msg_id in game["players"].items():
-            if ch_id in db["admins"]:
-                bot.edit_message_text(text = game["text_list"],  
-                                      chat_id = player_id, 
-                                      message_id = msg_id,
-                                      reply_markup = gen_markup(db, 'statistics'))
+        
+        for player_id in players:
+            
+            if player_id in game["players"]:
+                if player_id in db["admins"]:
+                    bot.edit_message_text(text = game["text_list"],  
+                                          chat_id = player_id, 
+                                          message_id = msg_id,
+                                          reply_markup = gen_markup(db, 'statistics'))
+                else:
+                    bot.edit_message_text(text = game["text_list"],  
+                                          chat_id = player_id, 
+                                          message_id = msg_id)
+                    
             else:
-                bot.edit_message_text(text = game["text_list"],  
-                                      chat_id = player_id, 
-                                      message_id = msg_id)
+                 bot.edit_message_text(text = '*Вы пропустили эту игру* \n',  
+                                          chat_id = player_id, 
+                                          message_id = players[player_id]['m_id'], 
+                                          parse_mode = "Markdown")
+                    
+#        for player_id, msg_id in game["players"].items():
+#            if ch_id in db["admins"]:
+#                bot.edit_message_text(text = game["text_list"],  
+#                                      chat_id = player_id, 
+#                                      message_id = msg_id,
+#                                      reply_markup = gen_markup(db, 'statistics'))
+#            else:
+#                bot.edit_message_text(text = game["text_list"],  
+#                                      chat_id = player_id, 
+#                                      message_id = msg_id)
             
             game["players"][player_id] = 0
             
@@ -260,12 +281,19 @@ def callback_func_p(call):
     elif call.data == "del":
         text = f'*ИГРА ОТМЕНЕНА!!!!\n*{game["text"]}\n\n'
         game['active'] = False
-        for player_id, msg_id in game["players"].items():
-            bot.edit_message_text(text = text,  
-                                  chat_id = player_id, 
-                                  message_id = msg_id, 
-                                  parse_mode = "Markdown")
+        for player_id in players:
             
+            if player_id in game["players"]:
+                bot.edit_message_text(text = text,  
+                                      chat_id = player_id, 
+                                      message_id = game["players"][player_id], 
+                                      parse_mode = "Markdown")
+            else:
+                bot.edit_message_text(text = text,  
+                                      chat_id = player_id, 
+                                      message_id = players[player_id]['m_id'], 
+                                      parse_mode = "Markdown")
+ 
         db["game"] = {
                   "players":{},
                   "active": False,
@@ -276,7 +304,6 @@ def callback_func_p(call):
                   }
         
     uploadDB(db)
-#    print ("END")
     
     
 '''
@@ -501,6 +528,6 @@ db = loadDB()
 db["crashed"] = db["crashed"] + 1
 uploadDB(db)
 
-#bot.send_message(383621032, f'Crashed {db["crashed"]}й раз')
-
+r = bot.send_message(383621032, f'Crashed {db["crashed"]}й раз')
+print (r.message_id)
 bot.polling( interval=2, timeout=40)
