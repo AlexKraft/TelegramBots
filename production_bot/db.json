@@ -7,7 +7,7 @@
       "admin": true,
       "scors": 12,
       "ingames": 0,
-      "m_id": 3727
+      "m_id": 3754
     },
     "476928592": {
       "fname": "Aleksey Tsybin",
@@ -16,18 +16,22 @@
       "admin": false,
       "scors": 14,
       "ingames": 0,
-      "m_id": 3728
+      "m_id": 3755
     }
   },
   "game": {
-    "players": {},
+    "players": {
+      "476928592": "3753"
+    },
     "active": false,
-    "text_list": "Болванка на игру",
-    "list": [],
+    "text_list": "Болванка на игру\n\nЗаписались на игру:\n1) Aleksey Tsybin",
+    "list": [
+      "Aleksey Tsybin"
+    ],
     "text": "Болванка на игру",
     "added": []
   },
-  "crashed": 52,
+  "crashed": 53,
   "admins": [
     "476928592",
     "383621032"
