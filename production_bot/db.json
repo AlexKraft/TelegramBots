@@ -5,18 +5,18 @@
       "lname": "Kucherenko",
       "uname": "alex_under_kraft",
       "admin": true,
-      "scors": 12,
+      "scors": 0,
       "ingames": 0,
-      "m_id": 3754
+      "m_id": 0
     },
     "476928592": {
       "fname": "Aleksey Tsybin",
       "lname": "Tsybin",
       "uname": null,
       "admin": false,
-      "scors": 14,
+      "scors": 0,
       "ingames": 0,
-      "m_id": 3755
+      "m_id": 0
     }
   },
   "game": {
@@ -31,8 +31,8 @@
     "text": "Болванка на игру",
     "added": []
   },
-  "crashed": 53,
-  "admins": [
+  "crashed": 2,
+  "admins": [ 
     "476928592",
     "383621032"
   ]

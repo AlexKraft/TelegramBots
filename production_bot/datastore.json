@@ -1,157 +1,214 @@
 {
   "players": {
-    "383621032":{
-        "fname": "Alex Kucherenko",
-        "lname": "Kucherenko",
-        "uname": "alex_under_kraft",
-        "phone": null,
-        "admin": true
-      },
-    "247931994":{
-        "fname": "Alex Hryshman",
-        "lname": "Hryshman",
-        "uname": "Hryshman",
-        "phone": null,
-        "admin": false
-      },
-    "496460985":{
-        "fname": "Alexandr Шайба",
-        "lname": null,
-        "uname": null,
-        "phone": null,
-        "admin": false
-      }, 
-    "364089346":{
-        "fname": "Dima Upps",
-        "lname": "Upps",
-        "uname": "kosmas1310",
-        "phone": null,
-        "admin": false
-      },
-    "306894487":{
-        "fname": "Aleksandr Tsybin",
-        "lname": "Tsybin",
-        "uname": null,
-        "phone": null,
-        "admin": false
-      },
-    "364848458":{
-        "fname": "Oleksandr Bondarets",
-        "lname": "Bondarets",
-        "uname": "BondiniAlex",
-        "phone": null,
-        "admin": false
-      }, 
-    "464986980":{
-        "fname": "Alexey Карузо",
-        "lname": null,
-        "uname": null,
-        "phone": null,
-        "admin": false
-      },
-    "386914650":{
-        "fname": "Arthur Молчанов",
-        "lname": null,
-        "uname": "artugan",
-        "phone": null,
-        "admin": false
-      },
-    "360544542":{
-        "fname": "Olexandr",
-        "lname": null,
-        "uname": "olexandr_ua",
-        "phone": null,
-        "admin": false
-      }, 
-    "796988537":{
-        "fname": "Romedal",
-        "lname": null,
-        "uname": null,
-        "phone": null,
-        "admin": false
-      },
-    "476928592":{
-        "fname": "Aleksey Tsybin",
-        "lname": "Tsybin",
-        "uname": null,
-        "phone": null,
-        "admin": false
-      },
+    "383621032": {
+      "fname": "Alex Kucherenko",
+      "lname": "Kucherenko",
+      "uname": "alex_under_kraft",
+      "phone": null,
+      "admin": true,
+      "scors": 0,
+      "ingames": 1,
+      "m_id": 729
+    },
+    "247931994": {
+      "fname": "Alex Hryshman",
+      "lname": "Hryshman",
+      "uname": "Hryshman",
+      "phone": null,
+      "admin": false,
+      "scors": 0,
+      "ingames": 0,
+      "m_id": 730
+    },
+    "496460985": {
+      "fname": "Alexandr",
+      "lname": null,
+      "uname": null,
+      "phone": null,
+      "admin": false,
+      "scors": 0,
+      "ingames": 0,
+      "m_id": 731
+    },
+    "364089346": {
+      "fname": "Dima Upps",
+      "lname": "Upps",
+      "uname": "kosmas1310",
+      "phone": null,
+      "admin": false,
+      "scors": 0,
+      "ingames": 0,
+      "m_id": 732
+    },
+    "306894487": {
+      "fname": "Aleksandr Tsybin",
+      "lname": "Tsybin",
+      "uname": null,
+      "phone": null,
+      "admin": false,
+      "scors": 0,
+      "ingames": 0,
+      "m_id": 733
+    },
+    "364848458": {
+      "fname": "Oleksandr Bondarets",
+      "lname": "Bondarets",
+      "uname": "BondiniAlex",
+      "phone": null,
+      "admin": false,
+      "scors": 0,
+      "ingames": 0,
+      "m_id": 734
+    },
+    "464986980": {
+      "fname": "Alexey",
+      "lname": null,
+      "uname": null,
+      "phone": null,
+      "admin": false,
+      "scors": 0,
+      "ingames": 0,
+      "m_id": 735
+    },
+    "386914650": {
+      "fname": "ðArthur",
+      "lname": null,
+      "uname": "artugan",
+      "phone": null,
+      "admin": false,
+      "scors": 0,
+      "ingames": 0,
+      "m_id": 736
+    },
+    "360544542": {
+      "fname": "Olexandr",
+      "lname": null,
+      "uname": "olexandr_ua",
+      "phone": null,
+      "admin": false,
+      "scors": 0,
+      "ingames": 0,
+      "m_id": 737
+    },
+    "796988537": {
+      "fname": "Romedal",
+      "lname": null,
+      "uname": null,
+      "phone": null,
+      "admin": false,
+      "scors": 0,
+      "ingames": 1,
+      "m_id": 738
+    },
+    "476928592": {
+      "fname": "Aleksey Tsybin",
+      "lname": "Tsybin",
+      "uname": null,
+      "phone": null,
+      "admin": false,
+      "m_id": 739
+    },
     "588465270": {
-        "fname": "Taras Degodyuk",
-        "lname": "Degodyuk",
-        "uname": null,
-        "phone": null,
-        "admin": false
-      },
-    "815823902":{
-        "fname": "Dimitri Bogachuk",
-        "lname": "Bogachuk",
-        "uname": null,
-        "phone": null,
-        "admin": false
-      },
-    "589486024":{
-        "fname": "Alexandr Vinogradov",
-        "lname": null,
-        "uname": null,
-        "phone": null,
-        "admin": false
-      }, 
-    "717333097":{
-        "fname": "Ivan Sushytsky",
-        "lname": "Sushytsky",
-        "uname": null,
-        "phone": null,
-        "admin": false
-      },
-    "433918684":{
-        "fname": "Тигра Лунная",
-        "lname": "Лунная",
-        "uname": null,
-        "phone": null,
-        "admin": false
-      }, 
-    "361879891":{
-        "fname": "Roman Saiko",
-        "lname": "Saiko",
-        "uname": "rsaiko23",
-        "phone": null,
-        "admin": false
-      }, 
-    "558722468":{
-        "fname": "YurKo",
-        "lname": null,
-        "uname": null,
-        "phone": null,
-        "admin": false
-      }, 
-    "703092092":{
-        "fname": "Станіслав Цибiн",
-        "lname": null,
-        "uname": null,
-        "phone": null,
-        "admin": false
-      }
+      "fname": "Taras Degodyuk",
+      "lname": "Degodyuk",
+      "uname": null,
+      "phone": null,
+      "admin": false,
+      "scors": 0,
+      "ingames": 0,
+      "m_id": 740
+    },
+    "815823902": {
+      "fname": "Dimitri Bogachuk",
+      "lname": "Bogachuk",
+      "uname": null,
+      "phone": null,
+      "admin": false,
+      "scors": 0,
+      "ingames": 0,
+      "m_id": 741
+    },
+    "589486024": {
+      "fname": "AV",
+      "lname": null,
+      "uname": null,
+      "phone": null,
+      "admin": false,
+      "scors": 0,
+      "ingames": 0,
+      "m_id": 742
+    },
+    "717333097": {
+      "fname": "Ivan Sushytsky",
+      "lname": "Sushytsky",
+      "uname": null,
+      "phone": null,
+      "admin": false,
+      "scors": 0,
+      "ingames": 0,
+      "m_id": 743
+    },
+    "433918684": {
+      "fname": "Тигра Лунная",
+      "lname": "Лунная",
+      "uname": null,
+      "phone": null,
+      "admin": false,
+      "scors": 0,
+      "ingames": 0,
+      "m_id": 744
+    },
+    "361879891": {
+      "fname": "Roman Saiko",
+      "lname": "Saiko",
+      "uname": "rsaiko23",
+      "phone": null,
+      "admin": false,
+      "scors": 0,
+      "ingames": 0,
+      "m_id": 745
+    },
+    "558722468": {
+      "fname": "YurKo",
+      "lname": null,
+      "uname": null,
+      "phone": null,
+      "admin": false,
+      "scors": 0,
+      "ingames": 0,
+      "m_id": 746
+    },
+    "703092092": {
+      "fname": "Станіслав",
+      "lname": null,
+      "uname": null,
+      "phone": null,
+      "admin": false,
+      "scors": 0,
+      "ingames": 0,
+      "m_id": 747
+    }
   },
   "game": {
-      "players":{
-        "306894487": 634,
-        "476928592": 640,
-        "589486024": 643,
-        "383621032": 629,
-        "588465270": 641
+    "players": {
+      "383621032": 755,
+      "796988537": "738",
+      "476928592": "739",
+      "364089346": "732"
     },
-    "text_list":"",
-    "list":[],
-    "active": false,
-    "text": "Отмечаемся на сегодня 1.09 17:00-19:00 ЖК София\n",
-    "added": [
-        "овсянкин",
-        "молчанов",
-        "Руслан",
-        "someone from local bar"
-      ]
+    "active": true,
+    "text_list": "Отмечаемся на завтра 08/09 \nЖК София 17:00-19:00\n\n** так как Бот все еще на стадии тестирования, то основная отмечалка проходит по прежнему в группе фейсбука https://www.facebook.com/groups/fkalcash/2313882582196620/\n\nЗаписались на игру:\n1) Alex Kucherenko\n2) Romedal\n3) Aleksey Tsybin\n4) Dima Upps",
+    "list": [
+      "Alex Kucherenko",
+      "Romedal",
+      "Aleksey Tsybin",
+      "Dima Upps"
+    ],
+    "text": "Отмечаемся на завтра 08/09 \nЖК София 17:00-19:00\n\n** так как Бот все еще на стадии тестирования, то основная отмечалка проходит по прежнему в группе фейсбука https://www.facebook.com/groups/fkalcash/2313882582196620/\n\nЗаписались на игру:\n1) Alex Kucherenko\n2) Romedal\n3) Aleksey Tsybin\n4) Dima Upps",
+    "added": []
   },
-  "crashed": 0
+  "crashed": 9,
+  "admins": [
+    "383621032"
+  ]
 }

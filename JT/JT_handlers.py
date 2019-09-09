@@ -36,7 +36,7 @@ bot = telebot.TeleBot(API_TOKEN)
 
 
 def set_usr_data(m, user, call):
-    ch_id = str (m.chat.id) 
+    ch_id = str(m.chat.id) 
     
     bot.delete_message(m.chat.id,m.message_id)
     bot.delete_message(m.chat.id,m.message_id - 1)
